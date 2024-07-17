@@ -1,17 +1,4 @@
-/*
-    ____              ____        __     __  __           __  _
-   / __ \____ _____  / __ )____  / /_   / / / /___  _____/ /_(_)___  ____ _
-  / / / / __ `/ __ \/ __  / __ \/ __/  / /_/ / __ \/ ___/ __/ / __ \/ __ `/
- / /_/ / /_/ / / / / /_/ / /_/ / /_   / __  / /_/ (__  ) /_/ / / / / /_/ /
-/_____/\__,_/_/ /_/_____/\____/\__/  /_/ /_/\____/____/\__/_/_/ /_/\__, /
-Free Hosting forever!                                            /____/
-*/
-
-//3,000th commit to github!
-
 global.config = require("./config.json");
-global.enabled = require("./enable.json");
-
 //New global cache system (Lazy way)
 global.users = [];
 
