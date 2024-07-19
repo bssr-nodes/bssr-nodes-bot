@@ -27,12 +27,21 @@ module.exports = {
             "Uncaught (in promise): Can't promise about this"
         ];
 
+        const code = interaction.options.getString('code');
+
         if (!authorizedUsers.includes(userId)) {
             const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            return interaction.reply({ content: randomResponse, ephemeral: false });
+
+            const errorEmbed = new MessageEmbed()
+                .setAuthor(interaction.user.tag, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
+                .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
+                .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${randomResponse}\`\`\``)
+                .setColor(0xff0000)
+                .setFooter(`${Date.now() - interaction.createdTimestamp}ms`);
+
+            return interaction.reply({ embeds: [errorEmbed], ephemeral: false });
         }
 
-        const code = interaction.options.getString('code');
         let evaled;
 
         try {
