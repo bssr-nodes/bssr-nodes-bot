@@ -23,7 +23,7 @@ exports.run = async (client, message, args) => {
         const cpuThreads = os.cpus().length * 2;
 
         // Fetch system metrics from API
-        const response = await axios.get("http://13.72.252.246:3928/metrics");
+        const response = await axios.get("/metrics");
         const { totalMemoryApi, freeMemoryApi, usedMemoryApi, cpuUsageApi } = response.data;
 
         // Convert API values from strings to numbers
