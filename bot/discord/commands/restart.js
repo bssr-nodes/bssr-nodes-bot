@@ -1,31 +1,45 @@
-const { MessageEmbed } = require("discord.js");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageEmbed } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
-exports.run = async (client, message, args) => {
-    const allowedRoleID = "1247882619602075749"; // Replace with the ID of the role allowed to use this command
+const restartFile = path.join(__dirname, 'restart.json');
 
-    if (!message.member.roles.cache.has(allowedRoleID)) {
-        return message.reply("get fucked dipshit u aint a dev for this bot");
-    }
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('restart')
+        .setDescription('Restarts the bot. What else would it do? Make you a sandwich?.'),
+    async execute(interaction) {
+        const allowedRoleID = '1247882619602075749'; // Replace with the ID of the role allowed to use this command
 
-    try {
-        const embed = new MessageEmbed()
-            .setTitle('Bot Restart')
-            .setDescription('The bot is restarting...')
-            .setColor('#FFA500')
-            .setTimestamp();
+        if (!interaction.member.roles.cache.has(allowedRoleID)) {
+            return interaction.reply("let me think about that... NO.", { ephemeral: false });
+        }
 
-        await message.channel.send(embed);
+        try {
+            const embed = new MessageEmbed()
+                .setTitle('Bot Restart')
+                .setDescription('The bot is restarting...')
+                .setColor('#FFA500')
+                .setTimestamp();
 
-        // Add a small delay before exiting to ensure the message is sent
-        setTimeout(() => {
-            process.exit();
-        }, 1000);
-    } catch (error) {
-        console.error('Error restarting the bot:', error);
-        const errorembed = new MessageEmbed()
-            .setTitle('Error')
-            .setDescription('An error occurred while trying to restart the bot.')
-            .setColor('#FF0000');
-        await message.channel.send(errorembed);
-    }
+            await interaction.reply({ embeds: [embed] });
+
+            // Save the restart request to a file
+            fs.writeFileSync(restartFile, JSON.stringify({ channelId: interaction.channel.id }));
+
+            // Add a small delay before exiting to ensure the message is sent
+            setTimeout(() => {
+                process.exit();
+            }, 1000);
+        } catch (error) {
+            console.error('Error restarting the bot:', error);
+            const errorembed = new MessageEmbed()
+                .setTitle('Error')
+                .setDescription('An error occurred while trying to restart the bot.')
+                .setColor('#FF0000');
+            await interaction.reply({ embeds: [errorembed], ephemeral: false });
+        }
+    },
 };
+
