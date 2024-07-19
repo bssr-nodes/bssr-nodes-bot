@@ -19,11 +19,15 @@ global.transport = nodemailer.createTransport({
 require("./nodestatsChecker");
 
 //Discord Bot
-let db = require("quick.db");
-global.Discord = require("discord.js");
+const { Client, Intents, Collection } = require('discord.js');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 global.fs = require("fs");
 global.moment = require("moment");
+global.db = require("quick.db");
+
 global.userData = new db.table("userData"); //User data, Email, ConsoleID, Link time, Username, DiscordID
 global.settings = new db.table("settings"); //Admin settings
 global.webSettings = new db.table("webSettings"); //Web settings (forgot what this is even for)
@@ -35,24 +39,48 @@ global.codes = new db.table("redeemCodes"); //Premium server redeem codes...
 global.lastBotClaim = new db.table("lastBotClaim"); //lastBotClaim
 global.nodePing = new db.table("nodePing"); //Node ping response time
 
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
-
 global.client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.DirectMessageReactions,
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.DIRECT_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
     ],
-    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
-global.bot = client;
 
+global.bot = client;
 global.pollPingLastUsed = 0;
 
-//Event handler
+// Load and register commands
+client.commands = new Collection();
+const commands = [];
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.data.name, command);
+    commands.push(command.data.toJSON());
+}
+
+const rest = new REST({ version: '9' }).setToken(config.DiscordBot.Token);
+
+(async () => {
+    try {
+        console.log('Started refreshing application (/) commands.');
+
+        await rest.put(
+            Routes.applicationGuildCommands(config.DiscordBot.clientID, config.DiscordBot.mainGuild),
+            { body: commands },
+        );
+
+        console.log('Successfully reloaded application (/) commands.');
+    } catch (error) {
+        console.error(error);
+    }
+})();
+
+// Event handler
 fs.readdir("./bot/discord/events/", (err, files) => {
     files = files.filter((f) => f.endsWith(".js"));
     files.forEach((f) => {
@@ -61,6 +89,7 @@ fs.readdir("./bot/discord/events/", (err, files) => {
         delete require.cache[require.resolve(`./bot/discord/events/${f}`)];
     });
 });
+
 global.createList = {};
 global.createListPrem = {};
 
@@ -89,6 +118,22 @@ global.getPassword = () => {
     }
     return password;
 };
+
+//Handle interactions
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) return;
+
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    }
+});
 
 //Bot login
 client.login(config.DiscordBot.Token);
