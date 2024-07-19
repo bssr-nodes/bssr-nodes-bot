@@ -1,4 +1,6 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageEmbed } = require('discord.js');
+
 const commands = {
     Users: {
         user: "See help for that command.",
@@ -27,22 +29,31 @@ let desc = (object) => {
     return description;
 };
 
-exports.run = async (client, message, args) => {
-    let embed = new Discord.MessageEmbed()
-        .setColor("BLUE")
-        .addField(`__**Users:**__ (${Object.entries(commands.Users).length})`, desc(commands.Users).join("\n"));
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('help')
+        .setDescription('Displays the help menu with available commands.'),
+    async execute(interaction) {
+        const member = interaction.member;
+        
+        let embed = new MessageEmbed()
+            .setColor('BLUE')
+            .addField(`__**Users:**__ (${Object.entries(commands.Users).length})`, desc(commands.Users).join('\n'));
 
-    if (message.member.roles.cache.get("1250045509868195840") != null)
-        embed.addField(
-            `__**Staff Commands:**__ (${Object.entries(commands.Staff).length})`,
-            desc(commands.Staff).join("\n")
-        );
+        if (member.roles.cache.has('1250045509868195840')) {
+            embed.addField(
+                `__**Staff Commands:**__ (${Object.entries(commands.Staff).length})`,
+                desc(commands.Staff).join('\n')
+            );
+        }
 
-    if (message.member.roles.cache.find((r) => r.id === "1247882619602075749"))
-        embed.addField(
-            `__**Developer Commands:**__ (${Object.entries(commands.Owner).length})`,
-            desc(commands.Owner).join("\n")
-        );
+        if (member.roles.cache.has('1247882619602075749')) {
+            embed.addField(
+                `__**Developer Commands:**__ (${Object.entries(commands.Owner).length})`,
+                desc(commands.Owner).join('\n')
+            );
+        }
 
-    message.reply(embed);
+        await interaction.reply({ embeds: [embed], ephemeral: false });
+    },
 };
