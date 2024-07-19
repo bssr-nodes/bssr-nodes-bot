@@ -1,27 +1,44 @@
+const { MessageEmbed } = require('discord.js');
 const axios = require("axios");
 const os = require("os");
 const osu = require("os-utils");
-const { MessageEmbed } = require("discord.js");
 
-exports.run = async (client, message, args) => {
-    try {
-        const botUptime = client.uptime;
+// Define the slash command
+module.exports = {
+    data: {
+        name: 'status',
+        description: 'Gets the status on stuff',
+    },
+    async execute(interaction) {
+        // Timeout for the API request (2 seconds)
+        const timeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timed out')), 2000)
+        );
+
+        // API request promise
+        const apiRequest = axios.get("http:///metrics");
+
+        // Race between the API request and timeout
+        let apiData;
+        try {
+            apiData = await Promise.race([apiRequest, timeout]);
+        } catch (error) {
+            console.error('Error fetching API data:', error);
+            apiData = { data: { totalMemoryApi: 'N/A', freeMemoryApi: 'N/A', usedMemoryApi: 'N/A', cpuUsageApi: 'N/A' } };
+        }
+
+        const botUptime = interaction.client.uptime;
         const memoryUsage = process.memoryUsage().heapUsed / 1024 / 1024 / 1024; // Convert to GB
         const totalMemory = os.totalmem() / 1024 / 1024 / 1024; // Convert to GB
         const freeMemory = os.freemem() / 1024 / 1024 / 1024; // Convert to GB
         let cpuUsage = 0;
         osu.cpuUsage((v) => cpuUsage = v); // Fetch CPU usage using os-utils
-        const ping = client.ws.ping;
+        const ping = interaction.client.ws.ping;
         const owner = 'ninsacc';
-        const cpuCores = os.cpus().length;
-        const cpuThreads = os.cpus().length * 2;
         const pixel = 'SOON';
 
-        // Fetch system metrics from API
-        const response = await axios.get("http://13.72.252.246:3928/metrics");
-        const { totalMemoryApi, freeMemoryApi, usedMemoryApi, cpuUsageApi } = response.data;
-
         // Convert API values from strings to numbers
+        const { totalMemoryApi, freeMemoryApi, usedMemoryApi, cpuUsageApi } = apiData.data;
         const totalMemoryApiNum = parseFloat(totalMemoryApi);
         const freeMemoryApiNum = parseFloat(freeMemoryApi);
         const usedMemoryApiNum = parseFloat(usedMemoryApi);
@@ -49,14 +66,7 @@ exports.run = async (client, message, args) => {
             .setFooter('Bot Statistics, command by skycodee')
             .setTimestamp();
 
-        await message.channel.send(stats);
-    } catch (error) {
-        console.error('Error fetching bot statistics:', error);
-        const errorembed = new MessageEmbed()
-            .setTitle('Error')
-            .setDescription('An error occurred while fetching bot statistics.')
-            .setColor('#FF0000');
-        await message.channel.send(errorembed);
+        await interaction.reply({ embeds: [stats] });
     }
 };
 
