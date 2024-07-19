@@ -1,12 +1,19 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageEmbed } = require('discord.js');
 
-exports.run = async (client, message, args) => {
-    const embed = new Discord.MessageEmbed()
-        .setColor("RED")
-        .setTitle("BSSR Nodes - Ping")
-        .setDescription(
-            `Bot Latency: ${Date.now() - message.createdTimestamp}ms\nAPI Latency: ${Math.round(client.ws.ping)}ms`
-        )
-        .setTimestamp();
-    message.reply(embed);
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('ping')
+        .setDescription('Shows the bot\'s ping.'),
+    async execute(interaction) {
+        const embed = new MessageEmbed()
+            .setColor('RED')
+            .setTitle('BSSR Nodes - Ping')
+            .setDescription(
+                `Bot Latency: ${Date.now() - interaction.createdTimestamp}ms\nAPI Latency: ${Math.round(interaction.client.ws.ping)}ms`
+            )
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [embed], ephemeral: false });
+    },
 };
