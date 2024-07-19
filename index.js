@@ -1,5 +1,6 @@
 const { Client, Intents, Collection } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 const path = require('path');
 
@@ -53,7 +54,7 @@ function loadCommands(directory) {
                 // Check if the command has 'data' property indicating it's a slash command
                 if (command.data && command.data.name) {
                     client.commands.set(command.data.name, command);
-                    commands.push(command.data.toJSON());
+                    commands.push(command.data);
                 } else {
                     console.error(`Command in ${fullPath} is missing the 'data' property or 'name' property.`);
                 }
@@ -75,7 +76,11 @@ client.once('ready', async () => {
     try {
         console.log('Started refreshing application (/) commands.');
 
-        await client.application?.commands.set(commands);
+        const rest = new REST({ version: '9' }).setToken(config.DiscordBot.Token);
+
+        await rest.put(Routes.applicationCommands(client.user.id), {
+            body: commands,
+        });
 
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
