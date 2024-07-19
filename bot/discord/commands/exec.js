@@ -1,17 +1,38 @@
-const exec = require("child_process").exec;
-exports.run = (client, message, args) => {
-    if (["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"].includes(message.author.id)) {
-        exec(`${args.join(" ")}`, (error, stdout) => {
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { exec } = require('child_process');
+const { MessageEmbed } = require('discord.js');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('exec')
+        .setDescription('Executes a shell command.')
+        .addStringOption(option =>
+            option.setName('command')
+                .setDescription('The shell command to execute')
+                .setRequired(true)
+        ),
+    async execute(interaction) {
+        const command = interaction.options.getString('command');
+        const authorizedUsers = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"];
+
+        if (!authorizedUsers.includes(interaction.user.id)) {
+            return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
+        }
+
+        exec(command, (error, stdout) => {
             let response = error || stdout;
 
-            if (response.length > 4000) console.log(response), (response = "Output too long.");
+            if (response.length > 4000) {
+                console.log(response);
+                response = "Output too long.";
+            }
 
-            message.reply("", {
-                embed: new Discord.MessageEmbed()
-                    .setDescription("```" + response + "```")
-                    .setTimestamp()
-                    .setColor("RANDOM"),
-            });
+            const embed = new MessageEmbed()
+                .setDescription("```" + response + "```")
+                .setTimestamp()
+                .setColor("RANDOM");
+
+            interaction.reply({ embeds: [embed] });
         });
-    }
+    },
 };
