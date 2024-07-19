@@ -16,7 +16,7 @@ module.exports = {
         const authorizedUsers = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"];
 
         if (!authorizedUsers.includes(interaction.user.id)) {
-            return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: true });
+            return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: false });
         }
 
         exec(command, (error, stdout) => {
