@@ -20,3 +20,4 @@ test.js
 package-lock.json
 .bashrc
 bot/discord/commands/status.js
+bot\discord\transcripts\*-ticket.txt
