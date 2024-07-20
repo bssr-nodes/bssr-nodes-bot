@@ -1,12 +1,11 @@
-const { Client, Intents, Collection } = require('discord.js');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const fs = require('fs');
-const path = require('path');
-
-// Global variables
 global.config = require("./config.json");
+
+//New global cache system (Lazy way)
 global.users = [];
+
+global.fs = require("fs");
+const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
+const path = require('path');
 global.chalk = require("chalk");
 const nodemailer = require("nodemailer");
 global.axios = require("axios");
@@ -19,8 +18,24 @@ global.transport = nodemailer.createTransport({
     },
 });
 
-// Discord bot setup
-global.client = new Client({
+// Initialising Node Checker
+require("./nodestatsChecker");
+
+//Discord Bot
+let db = require("quick.db");
+global.Discord = require("discord.js");
+
+global.userData = new db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
+global.settings = new db.table("settings"); // Admin settings
+global.webSettings = new db.table("webSettings"); // Web settings (forgot what this is even for)
+global.domains = new db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
+global.nodeStatus = new db.table("nodeStatus"); // Node status. Online or offline nodes
+global.userPrem = new db.table("userPrem"); // Premium user data, Donated, Boosted, Total
+global.nodeServers = new db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
+global.codes = new db.table("redeemCodes"); // Premium server redeem codes...
+global.nodePing = new db.table("nodePing"); // Node ping response time
+
+global.client = new global.Discord.Client({
     intents: [
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_MESSAGES,
@@ -31,27 +46,70 @@ global.client = new Client({
     ],
     partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
 });
+global.bot = global.client;
 
+global.pollPingLastUsed = 0;
+
+// Event handler
+fs.readdir("./bot/discord/events/", (err, files) => {
+    if (err) console.error(err);
+    files = files.filter(f => f.endsWith(".js"));
+    files.forEach(f => {
+        const event = require(`./bot/discord/events/${f}`);
+        client.on(f.split(".")[0], event.bind(null, client));
+        delete require.cache[require.resolve(`./bot/discord/events/${f}`)];
+    });
+});
+global.createList = {};
+global.createListPrem = {};
+
+// Import all create server lists
+fs.readdir("./create-free/", (err, files) => {
+    if (err) console.error(err);
+    files = files.filter(f => f.endsWith(".js"));
+    files.forEach(f => {
+        require(`./create-free/${f}`);
+    });
+});
+
+fs.readdir("./create-premium/", (err, files) => {
+    if (err) console.error(err);
+    files = files.filter(f => f.endsWith(".js"));
+    files.forEach(f => {
+        delete require.cache[require.resolve(`./create-premium/${f}`)];
+        require(`./create-premium/${f}`);
+    });
+});
+
+// Global password gen
+const CAPSNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+global.getPassword = () => {
+    let password = "";
+    while (password.length < 16) {
+        password += CAPSNUM[Math.floor(Math.random() * CAPSNUM.length)];
+    }
+    return password;
+};
+
+// Slash command setup
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
 global.client.commands = new Collection();
 const commands = [];
 
 // Function to handle loading commands
 function loadCommands(directory) {
-    // Get all entries in the current directory
     const entries = fs.readdirSync(directory, { withFileTypes: true });
 
     for (const entry of entries) {
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-            // Recursively process subdirectories
             loadCommands(fullPath);
         } else if (entry.isFile() && entry.name.endsWith('.js')) {
-            // Process .js files
             try {
                 const command = require(fullPath);
 
-                // Check if the command has 'data' property indicating it's a slash command
                 if (command.data && command.data.name) {
                     client.commands.set(command.data.name, command);
                     commands.push(command.data);
@@ -125,7 +183,7 @@ setInterval(async () => {
             users.push(...resources.data.data);
         })
         .catch((err) => {
-
+            console.error(err);
         });
 }, 10 * 60 * 1000);
 
