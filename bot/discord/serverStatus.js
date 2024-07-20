@@ -1,3 +1,5 @@
+const EmbedBuilder = require("discord.js");
+
 const nstatus = {
     "Nodes": [
         {
@@ -76,12 +78,12 @@ let getEmbed = async () => {
             desc = 'No status information available.';
         }
 
-        return new global.Discord.MessageEmbed()
+        return new EmbedBuilder()
             .setTitle("BSSR Nodes Status")
             .setDescription(desc)
             .setTimestamp();
     } catch (error) {
-        return new global.Discord.MessageEmbed()
+        return new EmbedBuilder()
             .setTitle('Error')
             .setDescription('An error occurred while fetching server status.')
             .setColor('#FF0000')
