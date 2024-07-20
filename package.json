@@ -22,7 +22,7 @@
     "better-sqlite3": "^8.5.0",
     "chalk": "^3.0.0",
     "discord-api-types": "^0.37.92",
-    "discord.js": "^13.17.1",
+    "discord.js": "latest",
     "humanize-duration": "^3.28.0",
     "moment": "^2.29.4",
     "ms": "^2.1.3",
