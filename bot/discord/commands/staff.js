@@ -25,7 +25,18 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('message')
                         .setDescription('The message for the bot to say')
-                        .setRequired(true))),
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('drop')
+                .setDescription('Drop a code for a premium server')
+                .addStringOption(option =>
+                    option.setName('time')
+                        .setDescription('Specify a time before it gets dropped')
+                        .setRequired(true))
+                .addStringOption(option =>
+                    option.setName('code')
+                        .setDescription('Optional: Specify a code to drop'))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
