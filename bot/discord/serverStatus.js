@@ -1,4 +1,4 @@
-let nstatus = {
+const nstatus = {
     "Nodes": [
         {
             name: "Byte",
@@ -13,15 +13,29 @@ let nstatus = {
     ],
 };
 
-let parse = async () => {
+const parse = async () => {
     let toReturn = {};
     for (let [title, data] of Object.entries(nstatus)) {
         let temp = [];
         for (let d of data) {
+            let timeoutReached = false;
+            let timer = setTimeout(() => {
+                timeoutReached = true;
+                temp.push(`${d.name}: ❓ No data found`);
+            }, 3000);
+
             try {
                 let da = await nodeStatus.get(d.data.toLowerCase());
                 let nodeData = await nodeServers.get(d.name.toLowerCase());
                 let ping = await nodePing.fetch(d.name.toLowerCase());
+
+                clearTimeout(timer);
+                if (timeoutReached) continue;
+
+                if (!da) {
+                    temp.push(`${d.name}: ❓ No data found`);
+                    continue;
+                }
 
                 let serverUsage = d.data.toLowerCase().startsWith("node")
                     ? (nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A")
@@ -40,8 +54,10 @@ let parse = async () => {
 
                 temp.push(`${d.name}: ${statusText}`);
             } catch (error) {
-                console.error(`Error fetching data for ${d.name}:`, error);
-                temp.push(`${d.name}: Error fetching status`);
+                if (!timeoutReached) {
+                    clearTimeout(timer);
+                    temp.push(`${d.name}: ❓ No data found`);
+                }
             }
         }
         toReturn[title] = temp;
@@ -60,12 +76,12 @@ let getEmbed = async () => {
             desc = 'No status information available.';
         }
 
-        return new Discord.EmbedBuilder()
+        return new global.Discord.MessageEmbed()
             .setTitle("BSSR Nodes Status")
             .setDescription(desc)
             .setTimestamp();
     } catch (error) {
-        return new Discord.EmbedBuilder()
+        return new global.Discord.MessageEmbed()
             .setTitle('Error')
             .setDescription('An error occurred while fetching server status.')
             .setColor('#FF0000')

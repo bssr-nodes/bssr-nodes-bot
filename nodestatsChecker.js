@@ -1,5 +1,6 @@
 const axios = require("axios");
 const ping = require("ping-tcp-js");
+const chalk = require("chalk");
 
 let pingLocals = {
     UK: config.Ping.UK,
@@ -20,11 +21,12 @@ let stats = {
         Location: pingLocals.UK,
     }
 };
+
 if (config.Enabled.nodestatsChecker) {
     console.log(chalk.magenta("[NODE CHECKER] ") + chalk.green("Enabled"));
-    //Node status
+    // Node status
     setInterval(() => {
-        //Public nodes
+        // Public nodes
         for (let [node, data] of Object.entries(stats)) {
             setTimeout(() => {
                 axios({
@@ -38,57 +40,43 @@ if (config.Enabled.nodestatsChecker) {
 
                     if (isNaN(pingData)) {
                         pingData = "0";
-                    };
+                    }
 
                     nodePing.set(node, {
                         ip: response.data.address,
                         ping: pingData,
                     });
-                }).catch((Error) => {
-                    //Handling errors? You mean just ignoring them of course.
-                });
+                }).catch((error) => {});
 
                 axios({
-                        url: config.Pterodactyl.hosturl + "/api/client/servers/" + data.serverID + "/resources",
-                        method: "GET",
-                        followRedirect: true,
-                        maxRedirects: 5,
-                        headers: {
-                            Authorization: "Bearer " + config.Pterodactyl.apikeyclient,
-                            "Content-Type": "application/json",
-                            Accept: "Application/vnd.pterodactyl.v1+json",
-                        },
-                    })
-                    .then((response) => {
-                        //Node is online and is working. Just checking if it's in maintenance or not.
-
+                    url: config.Pterodactyl.hosturl + "/api/client/servers/" + data.serverID + "/resources",
+                    method: "GET",
+                    followRedirect: true,
+                    maxRedirects: 5,
+                    headers: {
+                        Authorization: "Bearer " + config.Pterodactyl.apikeyclient,
+                        "Content-Type": "application/json",
+                        Accept: "Application/vnd.pterodactyl.v1+json",
+                    },
+                }).then((response) => {
+                    nodeStatus.set(`${node}.timestamp`, Date.now());
+                    nodeStatus.set(`${node}.status`, true);
+                    nodeStatus.set(`${node}.is_vm_online`, true);
+                }).catch((error) => {
+                    ping.ping(data.IP, 22).then(() => {
                         nodeStatus.set(`${node}.timestamp`, Date.now());
-                        nodeStatus.set(`${node}.status`, true);
+                        nodeStatus.set(`${node}.status`, false);
                         nodeStatus.set(`${node}.is_vm_online`, true);
-                    })
-                    .catch((error) => {
-                        //Node is either offline or wings are offline. Checks if it's maintenance, and then checks for wings.
-
-                        ping
-                            .ping(data.IP, 22)
-                            .then(() => {
-                                nodeStatus.set(`${node}.timestamp`, Date.now());
-                                nodeStatus.set(`${node}.status`, false);
-                                nodeStatus.set(`${node}.is_vm_online`, true);
-                            })
-                            .catch((e) => {
-                                nodeStatus.set(`${node}.timestamp`, Date.now());
-                                nodeStatus.set(`${node}.status`, false);
-                                nodeStatus.set(`${node}.is_vm_online`, false);
-                            });
+                    }).catch((e) => {
+                        nodeStatus.set(`${node}.timestamp`, Date.now());
+                        nodeStatus.set(`${node}.status`, false);
+                        nodeStatus.set(`${node}.is_vm_online`, false);
                     });
+                });
 
                 setTimeout(() => {
                     axios({
-                        url: config.Pterodactyl.hosturl +
-                            "/api/application/nodes/" +
-                            data.ID +
-                            "/allocations?per_page=9000",
+                        url: config.Pterodactyl.hosturl + "/api/application/nodes/" + data.ID + "/allocations?per_page=9000",
                         method: "GET",
                         followRedirect: true,
                         maxRedirects: 5,
@@ -98,9 +86,10 @@ if (config.Enabled.nodestatsChecker) {
                             Accept: "Application/vnd.pterodactyl.v1+json",
                         },
                     }).then((response) => {
-                        const servercount = response.data.data.filter((m) => m.attributes.assigned == true).length;
+                        const serverCount = response.data.data.filter((m) => m.attributes.assigned == true).length;
+
                         nodeServers.set(node, {
-                            servers: servercount,
+                            servers: serverCount,
                         });
                     }).catch((err) => {});
                 }, 2000);
