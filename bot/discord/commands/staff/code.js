@@ -1,5 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 
+// Define the codes Map
+const codes = new Map();
+
 // Utility function to generate a random code
 const generateCode = () => {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -12,14 +15,14 @@ const generateCode = () => {
 
 module.exports = {
     async execute(interaction) {
-        const allowedRoleIDs = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"];
+        const allowedUserIDs = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"];
         const ownerId = "569352110991343616";
         const codeName = interaction.options.getString('name');
         const uses = interaction.options.getInteger('uses');
 
-        // Check if the user has one of the allowed roles
-        if (!interaction.member.roles.cache.some(role => allowedRoleIDs.includes(role.id))) {
-            return await interaction.reply({ content: "BACK OFF. ONLY STAFF.", ephemeral: false });
+        // Check if the user ID is in the allowed list
+        if (!allowedUserIDs.includes(interaction.user.id)) {
+            return await interaction.reply({ content: "BACK OFF. STAFF ONLY.", ephemeral: false });
         }
 
         // Validate the input
