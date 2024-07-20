@@ -1,8 +1,5 @@
 const { MessageEmbed } = require('discord.js');
 
-// Define the codes Map
-const codes = new Map();
-
 // Utility function to generate a random code
 const generateCode = () => {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -34,12 +31,12 @@ module.exports = {
         const code = codeName.toLowerCase() === "random" ? generateCode() : codeName;
 
         // Check if the code already exists
-        if (codes.has(code)) {
+        if (global.codes.get(code)) {
             return await interaction.reply({ content: "A code with that name already exists.", ephemeral: true });
         }
 
         // Create the code and store it
-        codes.set(code, {
+        global.codes.set(code, {
             code: code,
             createdBy: interaction.user.id,
             balance: uses,
