@@ -1,15 +1,6 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('say')
-        .setDescription('Make the bot say a message.')
-        .addStringOption(option =>
-            option.setName('message')
-                .setDescription('The message for the bot to say')
-                .setRequired(true)
-        ),
     async execute(interaction) {
         const allowedRoleID = "1247882619602075749";
         const ownerId = "569352110991343616";
@@ -32,10 +23,6 @@ module.exports = {
             await owner.send({ embeds: [blockedEmbed] });
 
             return await interaction.reply({ content: "You cannot use @everyone or @here mentions.", ephemeral: true });
-        }
-
-        if (!sayMessage) {
-            return await interaction.reply({ content: "Please provide a message for the bot to say.", ephemeral: true });
         }
 
         try {
