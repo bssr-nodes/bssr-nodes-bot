@@ -4,7 +4,7 @@ global.config = require("./config.json");
 global.users = [];
 
 global.fs = require("fs");
-const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder } = require('discord.js');
 const path = require('path');
 global.chalk = require("chalk");
 const nodemailer = require("nodemailer");
