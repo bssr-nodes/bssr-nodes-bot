@@ -1,52 +1,70 @@
 const humanizeDuration = require("humanize-duration");
 
-exports.run = async (client, message, args) => {
-    let setDonations = (userid, amount) => {
-        userPrem.set(userid + ".donated", amount);
-    };
+module.exports = {
+    async execute(interaction) {
+        const codeName = interaction.options.getString('code');
 
-    if (!args[1]) {
-        message.reply("Usage is: `!server redeem code`");
-    } else {
-        let code = codes.get(args[1]);
+        // Utility function to update user donations
+        const setDonations = (userid, amount) => {
+            global.userPrem.set(userid + ".donated", amount);
+        };
 
-        if (code == null) {
-            message.reply("That code is invalid or expired");
-            return;
+        // Retrieve the code from the database
+        const code = global.codes.get(codeName);
+
+        if (!code) {
+            return await interaction.reply({ content: "That code is invalid or expired", ephemeral: false });
         }
-        let oldBal = userPrem.get(message.author.id + ".donated") || 0;
 
-        let now = Date.now();
-        message.reply(
-            `You have redeemed a code with ${code.balance} premium server(s), you now have ${Math.floor(
+        // Get the user's current balance
+        const oldBal = global.userPrem.get(interaction.user.id + ".donated") || 0;
+        const now = Date.now();
+
+        // Respond to the user
+        await interaction.reply({
+            content: `You have redeemed a code with ${code.balance} premium server(s), you now have ${Math.floor(
                 (oldBal + code.balance) / config.node7.price
-            )}!`
-        );
-        client.channels.cache
-            .get("1250362091207000134")
-            .send(
-                "<@" +
-                    message.author.id +
-                    ">, Redeemed code: " +
-                    args[1] +
-                    " it held " +
-                    code.balance +
-                    " premium servers! *This code was redeemed in " +
-                    humanizeDuration(now - code.createdAt) +
-                    "*"
+            )}!`,
+            ephemeral: false
+        });
+
+        // Send a notification to the specified channel
+        const channel = interaction.client.channels.cache.get("1250362091207000134");
+        if (channel) {
+            channel.send(
+                `<@${interaction.user.id}>, Redeemed code: ${codeName} it held ${code.balance} premium servers! *This code was redeemed in ${humanizeDuration(now - code.createdAt)}*`
             );
-
-        codes.delete(args[1]);
-
-        message.member.roles.add("1250361260462309430");
-        setDonations(message.author.id, oldBal + code.balance);
-
-        if (code.drop != null) {
-            let msg = await client.channels.cache.get(code.drop.message.channel).messages.fetch(code.drop.message.ID);
-            let embed = msg.embeds[0].setDescription(
-                `**REDEEM NOW!**\nThe code is: \`${code.code}\` \n**Steps:** \n- Navigate to <#1250784987419246717>\n- Redeem the Premium Code: \`!server redeem <Code>\`\n\n*Redeemed by ${message.member}*`
-            );
-            msg.edit(embed);
         }
-    }
+
+        // Delete the code from the database
+        global.codes.delete(codeName);
+
+        // Add the role to the user
+        const member = interaction.member;
+        if (member) {
+            const role = interaction.guild.roles.cache.get("1250361260462309430");
+            if (role) {
+                member.roles.add(role);
+            }
+        }
+
+        // Update the user's donations
+        setDonations(interaction.user.id, oldBal + code.balance);
+
+        // Update the drop message if applicable
+        if (code.drop) {
+            const dropChannel = interaction.client.channels.cache.get(code.drop.message.channel);
+            if (dropChannel) {
+                try {
+                    const dropMessage = await dropChannel.messages.fetch(code.drop.message.ID);
+                    const embed = dropMessage.embeds[0].setDescription(
+                        `**REDEEM NOW!**\nThe code is: \`${code.code}\` \n**Steps:** \n- Navigate to <#1250784987419246717>\n- Redeem the Premium Code: \`/server redeem <Code>\`\n\n*Redeemed by ${interaction.user}*`
+                    );
+                    await dropMessage.edit({ embeds: [embed] });
+                } catch (error) {
+                    console.error('Failed to fetch or update drop message:', error);
+                }
+            }
+        }
+    },
 };
