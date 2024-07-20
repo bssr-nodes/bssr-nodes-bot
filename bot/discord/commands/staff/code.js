@@ -1,48 +1,63 @@
-exports.run = async (client, message, args) => {
-    //Yes i stole this from the createData.js
-    const CAPSNUM = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-    var codeGen = () => {
-        var password = "";
-        while (password.length < 16) {
-            password += CAPSNUM[Math.floor(Math.random() * CAPSNUM.length)];
+const { MessageEmbed } = require('discord.js');
+
+// Utility function to generate a random code
+const generateCode = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    let code = "";
+    for (let i = 0; i < 16; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+};
+
+module.exports = {
+    async execute(interaction) {
+        const allowedRoleIDs = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"];
+        const ownerId = "569352110991343616";
+        const codeName = interaction.options.getString('name');
+        const uses = interaction.options.getInteger('uses');
+
+        // Check if the user has one of the allowed roles
+        if (!interaction.member.roles.cache.some(role => allowedRoleIDs.includes(role.id))) {
+            return await interaction.reply({ content: "BACK OFF. ONLY STAFF.", ephemeral: false });
         }
-        return password;
-    };
 
-    if (!["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461"].includes(message.author.id)) return;
-    if (args.length < 3) {
-        message.reply("Usage: `!staff code <name> <uses>");
-        return;
-    }
+        // Validate the input
+        if (isNaN(uses) || uses <= 0) {
+            return await interaction.reply({ content: "The number of uses must be a positive integer.", ephemeral: true });
+        }
 
-    let balance = parseInt(args[2]);
+        // Generate or use the provided code name
+        const code = codeName.toLowerCase() === "random" ? generateCode() : codeName;
 
-    if (isNaN(balance)) {
-        message.reply("Uses must be a valid number");
-        return;
-    }
+        // Check if the code already exists
+        if (codes.has(code)) {
+            return await interaction.reply({ content: "A code with that name already exists.", ephemeral: true });
+        }
 
-    const code = args[1].toLowerCase() == "random" ? codeGen() : args[1];
+        // Create the code and store it
+        codes.set(code, {
+            code: code,
+            createdBy: interaction.user.id,
+            balance: uses,
+            createdAt: Date.now(),
+        });
 
-    if (codes.get(code) != null) {
-        message.reply("A code with that name already exists");
-        return;
-    }
+        // Send confirmation message to the user
+        await interaction.reply({
+            content: `Created code: \`${code}\` with \`${uses}\` uses. \n\nRedeem this with \`/server redeem ${code}\``,
+            ephemeral: false
+        });
 
-    message.reply(
-        "Created code: `" +
-            code +
-            "` with `" +
-            args[2] +
-            "` premium servers. \n\nRedeem this with `!server redeem " +
-            code +
-            "`"
-    );
-
-    codes.set(code, {
-        code: code,
-        createdBy: message.author.id,
-        balance: balance,
-        createdAt: Date.now(),
-    });
+        // Log the creation to the bot owner
+        const owner = await interaction.client.users.fetch(ownerId);
+        const logEmbed = new MessageEmbed()
+            .setTitle('New code created')
+            .addField('Admin', interaction.user.tag, true)
+            .addField('Code', code, true)
+            .addField('Uses', uses.toString(), true)
+            .setColor('GREEN')
+            .setTimestamp();
+        await owner.send({ embeds: [logEmbed] });
+    },
 };
