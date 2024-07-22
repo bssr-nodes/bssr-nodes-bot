@@ -1,30 +1,30 @@
-exports.run = async (client, message, args) => {
-    if (!message.member.roles.cache.find((r) => r.id === "1250045509868195840")) return;
+const { EmbedBuilder } = require('discord.js');
 
-    let userid =
-        args[1] == null
-            ? message.author.id
-            : args[1].match(/[0-9]{17,19}/).length == 0
-            ? args[1]
-            : args[1].match(/[0-9]{17,19}/)[0];
-
-    if (args[1] == null) {
-        message.reply("Please send a users discord ID to see if they are linked with an account on the host.");
-    } else {
-        if (userData.get(userid) == null) {
-            message.reply("That account is not linked with a console account :sad:");
-        } else {
-            //console.log(userData.fetch(userid));
-
-            let embed = new Discord.MessageEmbed()
-                .setColor(`GREEN`)
-                .addField(`__**Username**__`, userData.fetch(args[1] + ".username"))
-                .addField(`__**Email**__`, userData.fetch(args[1] + ".email"))
-                .addField(`__**Discord ID**__`, userData.fetch(args[1] + ".discordID"))
-                .addField(`__**Console ID**__`, userData.fetch(args[1] + ".consoleID"))
-                .addField(`__**Date (YYYY/MM/DD)**__`, userData.fetch(args[1] + ".linkDate"))
-                .addField(`__**Time**__`, userData.fetch(args[1] + ".linkTime"));
-            await message.reply("That account is linked. Heres some data: ", embed);
+module.exports = {
+    async execute(interaction) {
+        // Check if the user has the specific role
+        if (!interaction.member.roles.cache.has("1247882619602075749")) {
+            return interaction.reply({ content: "i dont think so buckaroo", ephemeral: false });
         }
-    }
+
+        let userid = interaction.options.getString('userid');
+        if (!userid.match(/[0-9]{17,19}/)) {
+            return interaction.reply({ content: "Please provide a valid Discord user ID.", ephemeral: false });
+        }
+        userid = userid.match(/[0-9]{17,19}/)[0];
+
+        if (!userData.get(userid)) {
+            return interaction.reply({ content: "That account is not linked with a console account :sad:", ephemeral: false });
+        } else {
+            let embed = new EmbedBuilder()
+                .setColor(`#00FF00`)
+                .addField(`__**Username**__`, userData.fetch(`${userid}.username`))
+                .addField(`__**Email**__`, userData.fetch(`${userid}.email`))
+                .addField(`__**Discord ID**__`, userData.fetch(`${userid}.discordID`))
+                .addField(`__**Console ID**__`, userData.fetch(`${userid}.consoleID`))
+                .addField(`__**Date (YYYY/MM/DD)**__`, userData.fetch(`${userid}.linkDate`))
+                .addField(`__**Time**__`, userData.fetch(`${userid}.linkTime`));
+            await interaction.reply({ content: "That account is linked. Here's some data: ", embeds: [embed] });
+        }
+    },
 };

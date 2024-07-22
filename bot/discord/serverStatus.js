@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("@discordjs/builders");
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const nstatus = {
     "Nodes": [
@@ -45,13 +45,13 @@ const parse = async () => {
 
                 let statusText = "";
                 if (da.maintenance) {
-                    statusText = "🟣 Maintenance ~ Returning Soon!";
+                    statusText = "<a:maintenance:1264224228736106579> Maintenance ~ Returning Soon!";
                 } else if (da.status) {
                     statusText = `🟢 Online ${serverUsage}`;
                 } else if (da.is_vm_online == null) {
-                    statusText = "🔴 **Offline**";
+                    statusText = "<:error:1259041455754973238> **Offline**";
                 } else {
-                    statusText = `${da.is_vm_online ? "🟠 **Wings**" : "🔴 **System**"} **offline** ${serverUsage}`;
+                    statusText = `${da.is_vm_online ? "<a:loading:1264223471878017105> **Wings**" : "<:error:1259041455754973238> **System**"} **offline** ${serverUsage}`;
                 }
 
                 temp.push(`${d.name}: ${statusText}`);
@@ -67,7 +67,7 @@ const parse = async () => {
     return toReturn;
 };
 
-let getEmbed = async () => {
+const getEmbed = async () => {
     try {
         let status = await parse();
         let desc = Object.entries(status)
@@ -83,12 +83,19 @@ let getEmbed = async () => {
             .setDescription(desc)
             .setTimestamp();
     } catch (error) {
+        console.error("Error fetching or sending embed:", error);
+
         return new EmbedBuilder()
             .setTitle('Error')
             .setDescription('An error occurred while fetching server status.')
             .setColor('#FF0000')
             .setTimestamp();
     }
+};
+
+const sendStatusEmbed = async (channel) => {
+    const embed = await getEmbed();
+    channel.send({ embeds: [embed] });
 };
 
 module.exports = {

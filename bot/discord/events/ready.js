@@ -22,7 +22,7 @@ module.exports = async (client) => {
             if (!error) {
                 if (!response.includes("Already up to date.")) {
                     client.channels.cache
-                        .get("1250044011457024040")
+                        .get("1256939961177997312")
                         .send(`<t:${Date.now().toString().slice(0, -3)}:f> Automatic update from GitHub, pulling files.\n\`\`\`${cap(response, 1900)}\`\`\``);
                     setTimeout(() => {
                         process.exit();

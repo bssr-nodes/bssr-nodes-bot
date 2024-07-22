@@ -1,30 +1,30 @@
-exports.run = async (client, message, args) => {
-    if (!message.member.roles.cache.has("1247882619602075749")) return;
+const { PermissionFlagsBits } = require('discord.js');
 
-    // Check if a node is provided as an argument.
-    if (!args[1]) {
-        return message.reply("Please provide a Node to put into maintenance!");
-    } else {
-        const Data = await nodeStatus.get(args[1].toLowerCase());
+module.exports = {
+    async execute(interaction) {
+        // Check if the user has the specific role
+        if (!interaction.member.roles.cache.has("1247882619602075749")) {
+            return interaction.reply({ content: "You do not have permission to use this command.", ephemeral: false });
+        }
 
-        // Check if the provided node is valid.
+        const node = interaction.options.getString('node').toLowerCase();
+        const Data = await nodeStatus.get(node);
+
+        // Check if the provided node is valid
         if (Data == null) {
-            return message.reply("Invalid Node provided. Please provide a valid Node DB name.");
+            return interaction.reply({ content: "Invalid Node provided. Please provide a valid Node DB name.", ephemeral: false });
         } else {
-            // Toggle the maintenance mode.
+            // Toggle the maintenance mode
+            let Result;
             if (Data.maintenance) {
-                const Result = await nodeStatus.set(`${args[1].toLowerCase()}.maintenance`, false);
-
-                if (!Result) return message.reply(`Unable to put ${args[1]} out of maintenance mode.`);
-
-                return message.reply(`Successfully put ${args[1]} out of maintenance mode.`);
-            } else if (Data.maintenance == false) {
-                const Result = await nodeStatus.set(`${args[1].toLowerCase()}.maintenance`, true);
-
-                if (!Result) return message.reply(`Unable to put ${args[1]} into maintenance mode.`);
-
-                return message.reply(`Successfully put ${args[1]} into maintenance mode.`);
+                Result = await nodeStatus.set(`${node}.maintenance`, false);
+                if (!Result) return interaction.reply({ content: `Unable to put ${node} out of maintenance mode.`, ephemeral: false });
+                return interaction.reply({ content: `Successfully put ${node} out of maintenance mode.` });
+            } else {
+                Result = await nodeStatus.set(`${node}.maintenance`, true);
+                if (!Result) return interaction.reply({ content: `Unable to put ${node} into maintenance mode.`, ephemeral: false });
+                return interaction.reply({ content: `Successfully put ${node} into maintenance mode.` });
             }
         }
-    }
+    },
 };

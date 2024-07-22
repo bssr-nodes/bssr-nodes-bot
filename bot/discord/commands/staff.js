@@ -36,7 +36,23 @@ module.exports = {
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('code')
-                        .setDescription('Optional: Specify a code to drop'))),
+                        .setDescription('Optional: Specify a code to drop')))
+        .addSubcommand(subcommand =>
+            subcommand
+               .setName('maintenance')
+               .setDescription('Toggle maintenance mode for a specified node')
+               .addStringOption(option =>
+                    option.setName('node')
+                        .setDescription('The node to put into maintenance mode')
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+               .setName('linked')
+               .setDescription('Check if a user is linked with a console account')
+               .addStringOption(option => 
+                    option.setName('userid')
+                        .setDescription('The user ID to check')
+                        .setRequired(true))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);

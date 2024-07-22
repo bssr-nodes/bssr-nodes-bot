@@ -4,7 +4,7 @@ global.config = require("./config.json");
 global.users = [];
 
 global.fs = require("fs");
-const { Client, Intents, Collection, EmbedBuilder } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, IntentsBitField, Partials } = require('discord.js');
 const path = require('path');
 global.chalk = require("chalk");
 const nodemailer = require("nodemailer");
@@ -37,14 +37,15 @@ global.nodePing = new db.table("nodePing"); // Node ping response time
 
 global.client = new global.Discord.Client({
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.MESSAGE_CONTENT,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.DIRECT_MESSAGES,
-        Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+        IntentsBitField.Flags.DirectMessages,
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.GuildMessages
     ],
-    partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+    partials: [
+        Partials.Message,
+        Partials.User,
+        Partials.Channel
+    ]
 });
 global.bot = global.client;
 
