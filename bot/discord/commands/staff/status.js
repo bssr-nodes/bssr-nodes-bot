@@ -1,7 +1,7 @@
 const axios = require("axios");
 const os = require("os");
 const osu = require("os-utils");
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 exports.run = async (client, message, args) => {
     const allowedRoleID = "1247882619602075749";
@@ -32,7 +32,7 @@ exports.run = async (client, message, args) => {
         const usedMemoryApiNum = parseFloat(usedMemoryApi);
         const cpuUsageApiNum = parseFloat(cpuUsageApi);
 
-        const stats = new MessageEmbed()
+        const stats = new EmbedBuiler()
             .setTitle('📊 Bot Statistics')
             .setDescription('Here are the current bot statistics:')
             .addFields(
@@ -57,7 +57,7 @@ exports.run = async (client, message, args) => {
         await message.channel.send(stats);
     } catch (error) {
         console.error('Error fetching bot statistics:', error);
-        const errorembed = new MessageEmbed()
+        const errorembed = new EmbedBuilder()
             .setTitle('Error')
             .setDescription('An error occurred while fetching bot statistics.')
             .setColor('#FF0000');
