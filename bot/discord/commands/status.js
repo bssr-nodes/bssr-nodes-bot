@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const axios = require("axios");
 const os = require("os");
 const osu = require("os-utils");
@@ -44,7 +44,7 @@ module.exports = {
         const usedMemoryApiNum = parseFloat(usedMemoryApi);
         const cpuUsageApiNum = parseFloat(cpuUsageApi);
 
-        const stats = new MessageEmbed()
+        const stats = new EmbedBuilder()
             .setTitle('📊 Bot Statistics')
             .setDescription('Here are the current bot statistics:')
             .addFields(
