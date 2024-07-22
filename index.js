@@ -1,6 +1,6 @@
 global.config = require("./config.json");
 
-//New global cache system (Lazy way)
+// New global cache system (Lazy way)
 global.users = [];
 
 global.fs = require("fs");
@@ -21,7 +21,7 @@ global.transport = nodemailer.createTransport({
 // Initialising Node Checker
 require("./nodestatsChecker");
 
-//Discord Bot
+// Discord Bot
 let db = require("quick.db");
 global.Discord = require("discord.js");
 
@@ -113,7 +113,7 @@ function loadCommands(directory) {
 
                 if (command.data && command.data.name) {
                     client.commands.set(command.data.name, command);
-                    commands.push(command.data);
+                    commands.push(command.data.toJSON());
                 } else {
                     console.error(`Command in ${fullPath} is missing the 'data' property or 'name' property.`);
                 }
@@ -141,7 +141,7 @@ client.once('ready', async () => {
             body: commands,
         });
 
-        console.log('Successfully reloaded application (/) commands.');
+        console.log(`Successfully reloaded ${commands.length} application (/) commands.`);
     } catch (error) {
         console.error(error);
     }
