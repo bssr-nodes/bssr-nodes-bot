@@ -25,7 +25,7 @@ exports.run = async (client, message, args) => {
         return message.reply("Everyone already has this role.");
     }
 
-    const embed = new Discord.MessageEmbed()
+    const embed = new Discord.EmbedBuilder()
         .setTitle("Role Assignment")
         .setDescription(`Are you sure you want to assign the role **${roleToAssign.name}** to **${members.size}** members?`)
         .setColor("YELLOW")

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 // Utility function to generate a random code
 const generateCode = () => {
@@ -51,7 +51,7 @@ module.exports = {
 
         // Log the creation to the bot owner
         const owner = await interaction.client.users.fetch(ownerId);
-        const logEmbed = new MessageEmbed()
+        const logEmbed = new EmbedBuilder()
             .setTitle('New code created')
             .addField('Admin', interaction.user.tag, true)
             .addField('Code', code, true)

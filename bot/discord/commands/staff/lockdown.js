@@ -17,7 +17,7 @@ exports.run = async (client, message, args) => {
     }
 
     if (args[1].toLowerCase() === "lock") {
-        const locked = new Discord.MessageEmbed()
+        const locked = new Discord.EmbedBuilder()
             .setColor("RED")
             .setTitle("Channel Locked")
             .setDescription(`Channel is now locked. Only admins+ can post here.\n**Reason:** ${reason || 'No reason provided'}`)
@@ -26,7 +26,7 @@ exports.run = async (client, message, args) => {
         // Send the embed to the current channel
         await message.channel.send(locked);
 
-        const logEmbed = new Discord.MessageEmbed()
+        const logEmbed = new Discord.EmbedBuilder()
             .setColor("RED")
             .setDescription(`🔒 ${channel} was locked by ${author}.\n**Reason:** ${reason || 'No reason provided'}`)
             .setTimestamp();
@@ -45,7 +45,7 @@ exports.run = async (client, message, args) => {
         });
     } else if (args[1].toLowerCase() === "unlock") {
         // Unlock the channel
-        const unlocked = new Discord.MessageEmbed()
+        const unlocked = new Discord.EmbedBuilder()
             .setColor("RED")
             .setTitle("Channel Unlocked")
             .setDescription(`Channel is now unlocked. Everyone can post here.\n**Reason:** ${reason || 'No reason provided'}`)
@@ -54,7 +54,7 @@ exports.run = async (client, message, args) => {
         // Send the embed to the current channel
         await message.channel.send(unlocked);
 
-        const log = new Discord.MessageEmbed()
+        const log = new Discord.EmbedBuilder()
             .setColor("GREEN")
             .setDescription(`🔓 ${channel} was unlocked by ${author}.\n**Reason:** ${reason || 'No reason provided'}`)
             .setTimestamp();

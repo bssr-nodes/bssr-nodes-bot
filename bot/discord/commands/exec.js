@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { exec } = require('child_process');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,7 +27,7 @@ module.exports = {
                 response = "Output too long.";
             }
 
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setDescription("```" + response + "```")
                 .setTimestamp()
                 .setColor("RANDOM");

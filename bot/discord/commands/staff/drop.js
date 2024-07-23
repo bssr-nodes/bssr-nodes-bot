@@ -40,7 +40,7 @@ module.exports = {
             }
         }
 
-        const embed = new global.Discord.MessageEmbed()
+        const embed = new global.Discord.EmbedBuilder()
             .setAuthor("Key Drop!")
             .setColor("BLUE")
             .setFooter(`Keydrop by ${interaction.user.username}`, interaction.user.avatarURL())

@@ -1,12 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Shows the bot\'s ping.'),
     async execute(interaction) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor('RED')
             .setTitle('BSSR Nodes - Ping')
             .setDescription(

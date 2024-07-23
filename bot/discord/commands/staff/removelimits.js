@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 exports.run = async (client, message, args) => {
     // Role ID that is allowed to use this command
@@ -39,7 +39,7 @@ exports.run = async (client, message, args) => {
         );
 
         // Handle success response
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle('Server Limits Removed')
             .setDescription(`Limits removed for server ID ${serverID}.`)
             .setColor(0x00AE86)
@@ -50,7 +50,7 @@ exports.run = async (client, message, args) => {
         console.error('Error removing server limits:', error);
 
         // Handle error response
-        const errorEmbed = new MessageEmbed()
+        const errorEmbed = new EmbedBuilder()
             .setTitle('Error')
             .setDescription('An error occurred while removing server limits.')
             .setColor('#FF0000');

@@ -38,7 +38,7 @@ let desc = (object) => {
 exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.find((r) => r.id === "1250045509868195840")) return;
 
-    let embed = new Discord.MessageEmbed()
+    let embed = new Discord.EmbedBuilder()
         .setColor("BLUE")
         .addField("**Moderator Commands:**", desc(subcommands.mods).join("\n"))
         .addField("**Administrator Commands:**", desc(subcommands.admin).join("\n"))

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const humanizeDuration = require('humanize-duration');
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
             let myDate = new Date(interaction.client.readyTimestamp);
 
             // Create an embed message
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .addField(':white_check_mark: Uptime:', `**${uptime}**`, true)
                 .addField('Memory usage:', `${Math.trunc(process.memoryUsage().heapUsed / 1024 / 1000)}mb`, true)
                 .addField('API latency:', `${interaction.client.ws.ping}ms`, true)

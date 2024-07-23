@@ -44,7 +44,7 @@ exports.run = async (client, message, args) => {
 
             if (modlog) {
                 modlog.send({
-                    embed: new Discord.MessageEmbed()
+                    embed: new Discord.EmbedBuilder()
                         .setTitle("Premium Balance Transfer")
                         .addField("From:", args[1], true)
                         .addField("to:", args[2], true)

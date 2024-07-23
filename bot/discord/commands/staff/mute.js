@@ -52,7 +52,7 @@ exports.run = async (client, message, args) => {
       const muteRole = target.guild.roles.cache.find(role => role.name === 'muted');
   await target.roles.add(muteRole);
 
-  const embed = new Discord.MessageEmbed()
+  const embed = new Discord.EmbedBuilder()
     .setColor('#FF0000')
     .setTitle('User Muted')
     .addField('User', `${target.user.tag}`, true)

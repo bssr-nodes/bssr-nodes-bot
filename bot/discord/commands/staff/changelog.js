@@ -9,7 +9,7 @@ exports.run = async (client, message, args) => {
 
     // Helper function to create embeds for each step
     const createEmbed = (title, description) => {
-        return new Discord.MessageEmbed()
+        return new Discord.EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
             .setColor('BLUE');
@@ -63,7 +63,7 @@ exports.run = async (client, message, args) => {
                     const content = contentMessage.content;
 
                     // Create and send the changelog embed
-                    const changelogEmbed = new Discord.MessageEmbed()
+                    const changelogEmbed = new Discord.EmbedBuilder()
                         .setColor('GREEN')
                         .setTitle('Changelog')
                         .setDescription(`### ${topic}\n\n**Content:**\n${content}\n\nFrom ${message.author}`)

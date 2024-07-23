@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -13,7 +13,7 @@ module.exports = {
 
         if (sayMessage.includes('@everyone') || sayMessage.includes('@here')) {
             const owner = await interaction.client.users.fetch(ownerId);
-            const blockedEmbed = new MessageEmbed()
+            const blockedEmbed = new EmbedBuilder()
                 .setTitle('Say message blocked by security')
                 .addField('Admin', interaction.user.tag, true)
                 .addField('Message', sayMessage, true)

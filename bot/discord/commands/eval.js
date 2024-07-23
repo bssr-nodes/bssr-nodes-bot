@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 
 module.exports = {
@@ -32,7 +32,7 @@ module.exports = {
         if (!authorizedUsers.includes(userId)) {
             const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
-            const errorEmbed = new MessageEmbed()
+            const errorEmbed = new EmbedBuilder()
                 .setAuthor(interaction.user.tag, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
                 .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${randomResponse}\`\`\``)
@@ -56,7 +56,7 @@ module.exports = {
                 return interaction.reply({ content: 'Output too long, logged to eval.txt', files: ['eval.txt'], ephemeral: false });
             }
 
-            const evalEmbed = new MessageEmbed()
+            const evalEmbed = new EmbedBuilder()
                 .setAuthor(`Eval by ${interaction.user.tag}`, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
                 .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${evaled}\`\`\``)
@@ -66,7 +66,7 @@ module.exports = {
             interaction.reply({ embeds: [evalEmbed], ephemeral: false });
 
         } catch (err) {
-            const errorEmbed = new MessageEmbed()
+            const errorEmbed = new EmbedBuilder()
                 .setAuthor(`Eval by ${interaction.user.tag}`, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
                 .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${err}\`\`\``)

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -17,7 +17,7 @@ module.exports = {
         }
 
         try {
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setTitle('Bot Restart')
                 .setDescription('The bot is restarting...')
                 .setColor('#FFA500')
@@ -34,7 +34,7 @@ module.exports = {
             }, 1000);
         } catch (error) {
             console.error('Error restarting the bot:', error);
-            const errorembed = new MessageEmbed()
+            const errorembed = new EmbedBuilder()
                 .setTitle('Error')
                 .setDescription('An error occurred while trying to restart the bot.')
                 .setColor('#FF0000');

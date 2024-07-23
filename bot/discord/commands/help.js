@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const commands = {
     Users: {
@@ -36,7 +36,7 @@ module.exports = {
     async execute(interaction) {
         const member = interaction.member;
         
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
             .setColor('BLUE')
             .addField(`__**Users:**__ (${Object.entries(commands.Users).length})`, desc(commands.Users).join('\n'));
 
