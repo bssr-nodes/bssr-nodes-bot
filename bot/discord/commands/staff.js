@@ -56,7 +56,23 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('update')
-                .setDescription('Pulls files from GitHub and restarts the bot if there are updates.')),
+                .setDescription('Pulls files from GitHub and restarts the bot if there are updates.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('changelog')
+                .setDescription('Creates and sends a changelog')
+                .addStringOption(option => 
+                    option.setName('topic')
+                        .setDescription('The topic of the changelog')
+                        .setRequired(true))
+                .addStringOption(option => 
+                    option.setName('roles')
+                        .setDescription('Role IDs to ping, separated by spaces (type "everyone" for @everyone)')
+                        .setRequired(true))
+                .addStringOption(option => 
+                    option.setName('content')
+                        .setDescription('The content of the changelog')
+                        .setRequired(true))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
