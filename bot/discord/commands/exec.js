@@ -30,7 +30,7 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setDescription("```" + response + "```")
                 .setTimestamp()
-                .setColor("RANDOM");
+                .setColor("BLACK");
 
             interaction.reply({ embeds: [embed] });
         });
