@@ -52,7 +52,11 @@ module.exports = {
                .addStringOption(option => 
                     option.setName('userid')
                         .setDescription('The user ID to check')
-                        .setRequired(true))),
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('update')
+                .setDescription('Pulls files from GitHub and restarts the bot if there are updates.')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
