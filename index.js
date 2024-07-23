@@ -4,6 +4,7 @@ global.config = require("./config.json");
 global.users = [];
 
 global.fs = require("fs");
+const path = require("path");
 global.chalk = require("chalk");
 const nodemailer = require("nodemailer");
 global.axios = require("axios");
