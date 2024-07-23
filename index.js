@@ -1,11 +1,9 @@
 global.config = require("./config.json");
 
-// New global cache system (Lazy way)
+//New global cache system (Lazy way)
 global.users = [];
 
 global.fs = require("fs");
-const { Client, Intents, Collection, EmbedBuilder, IntentsBitField, Partials } = require('discord.js');
-const path = require('path');
 global.chalk = require("chalk");
 const nodemailer = require("nodemailer");
 global.axios = require("axios");
@@ -21,21 +19,23 @@ global.transport = nodemailer.createTransport({
 // Initialising Node Checker
 require("./nodestatsChecker");
 
-// Discord Bot
+//Discord Bot
 let db = require("quick.db");
+const { Client, Collection, EmbedBuilder, IntentsBitField, Partials, REST, Routes } = require("discord.js");
 global.Discord = require("discord.js");
 
-global.userData = new db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
-global.settings = new db.table("settings"); // Admin settings
-global.webSettings = new db.table("webSettings"); // Web settings (forgot what this is even for)
-global.domains = new db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
-global.nodeStatus = new db.table("nodeStatus"); // Node status. Online or offline nodes
-global.userPrem = new db.table("userPrem"); // Premium user data, Donated, Boosted, Total
-global.nodeServers = new db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
-global.codes = new db.table("redeemCodes"); // Premium server redeem codes...
-global.nodePing = new db.table("nodePing"); // Node ping response time
+global.moment = require("moment");
+global.userData = new db.table("userData"); //User data, Email, ConsoleID, Link time, Username, DiscordID
+global.settings = new db.table("settings"); //Admin settings
+global.webSettings = new db.table("webSettings"); //Web settings (forgot what this is even for)
+global.domains = new db.table("linkedDomains"); //Linked domains for unproxy and proxy cmd
+global.nodeStatus = new db.table("nodeStatus"); //Node status. Online or offline nodes
+global.userPrem = new db.table("userPrem"); //Premium user data, Donated, Boosted, Total
+global.nodeServers = new db.table("nodeServers"); //Server count for node limits to stop nodes becoming overloaded
+global.codes = new db.table("redeemCodes"); //Premium server redeem codes...
+global.nodePing = new db.table("nodePing"); //Node ping response time
 
-global.client = new global.Discord.Client({
+global.client = new Client({
     intents: [
         IntentsBitField.Flags.DirectMessages,
         IntentsBitField.Flags.Guilds,
@@ -85,7 +85,7 @@ fs.readdir("./create-premium/", (err, files) => {
 // Global password gen
 const CAPSNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 global.getPassword = () => {
-    let password = "";
+    var password = "";
     while (password.length < 16) {
         password += CAPSNUM[Math.floor(Math.random() * CAPSNUM.length)];
     }
@@ -93,8 +93,6 @@ global.getPassword = () => {
 };
 
 // Slash command setup
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
 global.client.commands = new Collection();
 const commands = [];
 
@@ -113,7 +111,7 @@ function loadCommands(directory) {
 
                 if (command.data && command.data.name) {
                     client.commands.set(command.data.name, command);
-                    commands.push(command.data.toJSON());
+                    commands.push(command.data);
                 } else {
                     console.error(`Command in ${fullPath} is missing the 'data' property or 'name' property.`);
                 }
@@ -135,13 +133,13 @@ client.once('ready', async () => {
     try {
         console.log('Started refreshing application (/) commands.');
 
-        const rest = new REST({ version: '9' }).setToken(config.DiscordBot.Token);
+        const rest = new REST({ version: '10' }).setToken(config.DiscordBot.Token);
 
         await rest.put(Routes.applicationCommands(client.user.id), {
             body: commands,
         });
 
-        console.log(`Successfully reloaded ${commands.length} application (/) commands.`);
+        console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
         console.error(error);
     }
