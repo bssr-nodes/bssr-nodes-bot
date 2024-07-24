@@ -45,13 +45,13 @@ const parse = async () => {
 
                 let statusText = "";
                 if (da.maintenance) {
-                    statusText = "<a:maintenance:1264224228736106579> Maintenance ~ Returning Soon!";
+                    statusText = "<a:maintenance:1265630967872229408> Maintenance ~ Returning Soon!";
                 } else if (da.status) {
                     statusText = `🟢 Online ${serverUsage}`;
                 } else if (da.is_vm_online == null) {
-                    statusText = "<:error:1259041455754973238> **Offline**";
+                    statusText = "<:error:1265632865215971390> **Offline**";
                 } else {
-                    statusText = `${da.is_vm_online ? "<a:loading:1264223471878017105> **Wings**" : "<:error:1259041455754973238> **System**"} **offline** ${serverUsage}`;
+                    statusText = `${da.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390> **System**"} **offline** ${serverUsage}`;
                 }
 
                 temp.push(`${d.name}: ${statusText}`);
