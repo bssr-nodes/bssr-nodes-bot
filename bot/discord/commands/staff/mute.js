@@ -8,7 +8,7 @@ module.exports = {
     const duration = interaction.options.getString('duration');
     const reason = interaction.options.getString('reason') || 'No reason provided';
 
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
         return interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
     }
 
@@ -22,13 +22,13 @@ module.exports = {
         await member.timeout(durationMs, reason);
 
         const embed = new EmbedBuilder()
-            .setColor('RED')
+            .setColor('Red')
             .setTitle('User Muted')
             .addFields(
                 { name: 'User', value: `${member.user.tag}`, inline: true },
-                { name: 'Duration', value: `${duration}`, inline: true },
-                { name: 'Reason', value: `${reason}`, inline: true },
-                { name: 'Moderator', value: `${interaction.user.tag}`, inline: true },
+                { name: 'Duration', value: duration, inline: true },
+                { name: 'Reason', value: reason, inline: true },
+                { name: 'Moderator', value: interaction.user.tag, inline: true }
             )
             .setTimestamp();
 
@@ -55,5 +55,5 @@ module.exports = {
         console.error(error);
         await interaction.reply({ content: 'An error occurred while trying to mute the user.', ephemeral: true });
     }
-},
+  },
 };
