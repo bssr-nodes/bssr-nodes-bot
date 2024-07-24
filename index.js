@@ -1,6 +1,6 @@
 global.config = require("./config.json");
 
-//New global cache system (Lazy way)
+// New global cache system (Lazy way)
 global.users = [];
 
 global.fs = require("fs");
@@ -20,35 +20,36 @@ global.transport = nodemailer.createTransport({
 // Initialising Node Checker
 require("./nodestatsChecker");
 
-//Discord Bot
+// Discord Bot
 let db = require("quick.db");
-const { Client, Collection, EmbedBuilder, IntentsBitField, Partials, REST, Routes } = require("discord.js");
+const { Client, Collection, IntentsBitField, Partials, REST, Routes } = require("discord.js");
 global.Discord = require("discord.js");
 
 global.moment = require("moment");
-global.userData = new db.table("userData"); //User data, Email, ConsoleID, Link time, Username, DiscordID
-global.settings = new db.table("settings"); //Admin settings
-global.webSettings = new db.table("webSettings"); //Web settings (forgot what this is even for)
-global.domains = new db.table("linkedDomains"); //Linked domains for unproxy and proxy cmd
-global.nodeStatus = new db.table("nodeStatus"); //Node status. Online or offline nodes
-global.userPrem = new db.table("userPrem"); //Premium user data, Donated, Boosted, Total
-global.nodeServers = new db.table("nodeServers"); //Server count for node limits to stop nodes becoming overloaded
-global.codes = new db.table("redeemCodes"); //Premium server redeem codes...
-global.nodePing = new db.table("nodePing"); //Node ping response time
-global.moderationHistory = new db.table("moderationHistory"); //Moderation history, duh.
+global.userData = new db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
+global.settings = new db.table("settings"); // Admin settings
+global.webSettings = new db.table("webSettings"); // Web settings (forgot what this is even for)
+global.domains = new db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
+global.nodeStatus = new db.table("nodeStatus"); // Node status. Online or offline nodes
+global.userPrem = new db.table("userPrem"); // Premium user data, Donated, Boosted, Total
+global.nodeServers = new db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
+global.codes = new db.table("redeemCodes"); // Premium server redeem codes...
+global.nodePing = new db.table("nodePing"); // Node ping response time
+global.moderationHistory = new db.table("moderationHistory"); // Moderation history, duh.
 
 global.client = new Client({
     intents: [
         IntentsBitField.Flags.DirectMessages,
         IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMessages
+        IntentsBitField.Flags.GuildMessages,
     ],
     partials: [
         Partials.Message,
         Partials.User,
-        Partials.Channel
-    ]
+        Partials.Channel,
+    ],
 });
+
 global.bot = global.client;
 
 global.pollPingLastUsed = 0;
@@ -63,6 +64,7 @@ fs.readdir("./bot/discord/events/", (err, files) => {
         delete require.cache[require.resolve(`./bot/discord/events/${f}`)];
     });
 });
+
 global.createList = {};
 global.createListPrem = {};
 
@@ -113,7 +115,7 @@ function loadCommands(directory) {
 
                 if (command.data && command.data.name) {
                     client.commands.set(command.data.name, command);
-                    commands.push(command.data);
+                    commands.push(command.data.toJSON());
                 } else {
                     console.error(`Command in ${fullPath} is missing the 'data' property or 'name' property.`);
                 }
@@ -143,7 +145,7 @@ client.once('ready', async () => {
 
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
-        console.error(error);
+        console.error('Error while registering commands:', error);
     }
     console.log(`${client.user.tag} is logged in!`);
 });
@@ -159,7 +161,7 @@ client.on('interactionCreate', async interaction => {
     try {
         await command.execute(interaction);
     } catch (error) {
-        console.error(error);
+        console.error('Error executing command:', error);
         await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
     }
 });
