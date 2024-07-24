@@ -101,7 +101,7 @@ module.exports = {
                     option.setName('reason')
                         .setDescription('The reason for the mute.')
                         .setRequired(false))
-        .addSubCommand(subcommand =>
+        .addSubcommand(subcommand =>
             subcommand
                 .setName('history')
                 .setDescription('Show the moderation history of a user')
@@ -110,15 +110,15 @@ module.exports = {
                         .setDescription('The member whose history you want to view')
                         .setRequired(true))),
 
-async execute(interaction) {
-    const subcommand = interaction.options.getSubcommand();
-    const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
+    async execute(interaction) {
+        const subcommand = interaction.options.getSubcommand();
+        const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
 
-    if (fs.existsSync(subcommandPath)) {
-        const command = require(subcommandPath);
-        return command.execute(interaction);
-    }
+        if (fs.existsSync(subcommandPath)) {
+            const command = require(subcommandPath);
+            return command.execute(interaction);
+        }
 
-    await interaction.reply({ content: 'Subcommand not found', ephemeral: true });
-},
+        await interaction.reply({ content: 'Subcommand not found', ephemeral: true });
+    },
 };
