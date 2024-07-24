@@ -98,7 +98,7 @@ module.exports = {
                         { name: '2 weeks', value: '14d' },
                     ))
                 .addStringOption(option =>
-                    option.setname('reason')
+                    option.setName('reason')
                     .setDescription('The reason for the mute.')
                     .setRequired(false))),
     async execute(interaction) {
