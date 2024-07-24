@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Shows the bot\'s ping.'),
     async execute(interaction) {
         const embed = new EmbedBuilder()
-            .setColor('RED')
+            .setColor('#FF0000')
             .setTitle('BSSR Nodes - Ping')
             .setDescription(
                 `Bot Latency: ${Date.now() - interaction.createdTimestamp}ms\nAPI Latency: ${Math.round(interaction.client.ws.ping)}ms`
