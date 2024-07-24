@@ -78,29 +78,29 @@ module.exports = {
                 .setName('mute')
                 .setDescription('Mute a member')
                 .addUserOption(option =>
-                    option.setName('Target')
+                    option.setName('target')
                         .setDescription('The member to mute')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('duration')
-                    .setDescription('The duration of the mute')
-                    .setRequired(true)
-                    .addChoices(
-                        { name: '5 minutes', value: '5m' },
-                        { name: '30 minute', value: '30m' },
-                        { name: '1 hour', value: '1h' },
-                        { name: '2 hours', value: '2h' },
-                        { name: '6 hours', value: '6h' },
-                        { name: '12 hours', value: '12h' },
-                        { name: '1 day', value: '1d' },
-                        { name: '3 days', value: '3d' },
-                        { name: '1 week', value: '7d' },
-                        { name: '2 weeks', value: '14d' },
-                    ))
+                        .setDescription('The duration of the mute')
+                        .setRequired(true)
+                        .addChoices(
+                            { name: '5 minutes', value: '5m' },
+                            { name: '30 minutes', value: '30m' },
+                            { name: '1 hour', value: '1h' },
+                            { name: '2 hours', value: '2h' },
+                            { name: '6 hours', value: '6h' },
+                            { name: '12 hours', value: '12h' },
+                            { name: '1 day', value: '1d' },
+                            { name: '3 days', value: '3d' },
+                            { name: '1 week', value: '7d' },
+                            { name: '2 weeks', value: '14d' },
+                        ))
                 .addStringOption(option =>
                     option.setName('reason')
-                    .setDescription('The reason for the mute.')
-                    .setRequired(false))),
+                        .setDescription('The reason for the mute.')
+                        .setRequired(false))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
