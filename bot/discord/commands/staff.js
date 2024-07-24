@@ -96,7 +96,7 @@ module.exports = {
                             { name: '1 day', value: '1d' },
                             { name: '3 days', value: '3d' },
                             { name: '1 week', value: '7d' },
-                            { name: '2 weeks', value: '14d' })))
+                            { name: '2 weeks', value: '14d' }))
                 .addStringOption(option =>
                     option.setName('reason')
                         .setDescription('The reason for the mute.')
