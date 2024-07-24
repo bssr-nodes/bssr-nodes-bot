@@ -35,6 +35,7 @@ global.userPrem = new db.table("userPrem"); //Premium user data, Donated, Booste
 global.nodeServers = new db.table("nodeServers"); //Server count for node limits to stop nodes becoming overloaded
 global.codes = new db.table("redeemCodes"); //Premium server redeem codes...
 global.nodePing = new db.table("nodePing"); //Node ping response time
+global.moderationHistory = new db.table("moderationHistory"); //Moderation history, duh.
 
 global.client = new Client({
     intents: [

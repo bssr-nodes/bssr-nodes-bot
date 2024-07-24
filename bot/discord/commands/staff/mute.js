@@ -1,73 +1,61 @@
-// Create the "muted" role if it doesn't exist
-async function createMutedRole(guild) {
-  const muteRole = guild.roles.cache.find(role => role.name === 'muted');
-  if (!muteRole) {
-    await guild.roles.create({
-      name: 'muted',
-      permissions: []
-    });
-  }
-}
+const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const ms = require('ms');
 
-// Disable send message permission for the "muted" role in all channels
-async function setupMuteRole(guild) {
-  await createMutedRole(guild);
-  const muteRole = guild.roles.cache.find(role => role.name === 'muted');
-  const channels = guild.channels.cache.filter(channel => channel.type !== 'category');
-  for (const channel of channels) {
-    await channel.permissionOverwrites.edit(muteRole, {
-      SEND_MESSAGES: false
-    });
-  }
-}
+module.exports = {
+    async execute(interaction) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+            return interaction.reply({ content: 'not staff i see. i am in a 50 meter radius of you and am rapidluy approaching. start running.', ephemeral: false });
+        }
 
-// Run the setup function when the bot starts
-client.on('ready', async () => {
-  for (const guild of client.guilds.cache) {
-    await setupMuteRole(guild[1]);
-  }
-});
+        const user = interaction.options.getUser('user');
+        const durationInput = interaction.options.getString('duration');
+        const reason = interaction.options.getString('reason') || 'No reason provided';
 
-// Mute command
-exports.run = async (client, message, args) => {
-  const logChannelId = '1250044011457024040';
+        let duration;
+        try {
+            duration = ms(durationInput);
+            if (!duration) throw new Error('Invalid duration');
+        } catch (error) {
+            return interaction.reply({ content: 'Please provide a valid duration (e.g., 1m, 5m, 1h, 1d).', ephemeral: true });
+        }
 
-  if (!message.member.roles.cache.find((r) => r.id === "1247882619602075749")) {
-    return message.channel.send("You don't have permission to use this command.");
-  }
+        const member = await interaction.guild.members.fetch(user.id);
 
-  const target = message.mentions.members.first();
-  if (!target) return message.channel.send("Please mention a user to mute.");
+        if (!member) {
+            return interaction.reply({ content: 'User not found in this server.', ephemeral: true });
+        }
 
-  let muteDuration = args[1];
-  if (!muteDuration) return message.channel.send("Please provide a duration for the mute.");
+        try {
+            await member.timeout(duration, reason);
 
-  let duration;
-  try {
-    duration = ms(muteDuration);
-  } catch (error) {
-    return message.channel.send("Invalid duration format. Please use formats like '1m', '5h', '2d'.");
-  }
-    
-      const muteRole = target.guild.roles.cache.find(role => role.name === 'muted');
-  await target.roles.add(muteRole);
+            global.moderationHistory.set(`${user.id}`, {
+                action: 'mute',
+                moderator: interaction.user.tag,
+                duration: durationInput,
+                reason: reason,
+                date: new Date().toISOString()
+            });
 
-  const embed = new Discord.EmbedBuilder()
-    .setColor('#FF0000')
-    .setTitle('User Muted')
-    .addField('User', `${target.user.tag}`, true)
-    .addField('Duration', `${ms(duration, { long: true })}`, true)
-    .addField('By', `${message.author.tag}`, true)
-    .setTimestamp();
+            const embed = new EmbedBuilder()
+                .setColor('RED')
+                .setTitle('User Muted')
+                .addFields(
+                    { name: 'User', value: user.tag, inline: true },
+                    { name: 'Duration', value: durationInput, inline: true },
+                    { name: 'Reason', value: reason, inline: true },
+                    { name: 'Moderator', value: interaction.user.tag, inline: true }
+                )
+                .setTimestamp();
 
-  message.channel.send(`Muted **${target.user.tag}** for **${ms(duration, { long: true })}**!`);
-  message.channel.send({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
 
-  const logChannel = client.channels.cache.get(logChannelId);
-  if (logChannel) logChannel.send({ embeds: [embed] });
-
-  setTimeout(async () => {
-    await target.roles.remove(muteRole);
-    message.channel.send(`Unmuted **${target.user.tag}**!`);
-  }, duration);
+            const logChannel = interaction.guild.channels.cache.get('1250044011457024040');
+            if (logChannel) {
+                logChannel.send({ embeds: [embed] });
+            }
+        } catch (error) {
+            console.error(error);
+            interaction.reply({ content: 'There was an error trying to mute this user.', ephemeral: true });
+        }
+    },
 };
