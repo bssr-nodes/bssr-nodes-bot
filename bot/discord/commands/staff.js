@@ -96,7 +96,7 @@ module.exports = {
                         { name: '1 day', value: '1d' },
                         { name: '3 days', value: '3d' },
                         { name: '1 week', value: '7d' },
-                        { name: '2 weeks', value: '14d' }))
+                        { name: '2 weeks', value: '14d' })))
                 .addStringOption(option =>
                     option.setName('reason')
                         .setDescription('The reason for the mute.')
@@ -108,7 +108,7 @@ module.exports = {
                 .addUserOption(option =>
                     option.setName('target')
                         .setDescription('The member whose history you want to view')
-                        .setRequired(true)))),
+                        .setRequired(true))),
 
 async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
