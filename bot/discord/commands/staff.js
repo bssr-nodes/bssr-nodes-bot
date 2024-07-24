@@ -86,21 +86,21 @@ module.exports = {
                         .setDescription('The duration of the mute')
                         .setRequired(true)
                         .addChoices(
-                        { name: '1 minute', value: '1m' },
-                        { name: '5 minutes', value: '5m' },
-                        { name: '30 minutes', value: '30m' },
-                        { name: '1 hour', value: '1h' },
-                        { name: '2 hours', value: '2h' },
-                        { name: '6 hours', value: '6h' },
-                        { name: '12 hours', value: '12h' },
-                        { name: '1 day', value: '1d' },
-                        { name: '3 days', value: '3d' },
-                        { name: '1 week', value: '7d' },
-                        { name: '2 weeks', value: '14d' })))
+                            { name: '1 minute', value: '1m' },
+                            { name: '5 minutes', value: '5m' },
+                            { name: '30 minutes', value: '30m' },
+                            { name: '1 hour', value: '1h' },
+                            { name: '2 hours', value: '2h' },
+                            { name: '6 hours', value: '6h' },
+                            { name: '12 hours', value: '12h' },
+                            { name: '1 day', value: '1d' },
+                            { name: '3 days', value: '3d' },
+                            { name: '1 week', value: '7d' },
+                            { name: '2 weeks', value: '14d' })))
                 .addStringOption(option =>
                     option.setName('reason')
                         .setDescription('The reason for the mute.')
-                        .setRequired(false))
+                        .setRequired(false)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('history')
@@ -109,7 +109,6 @@ module.exports = {
                     option.setName('target')
                         .setDescription('The member whose history you want to view')
                         .setRequired(true))),
-
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'staff', `${subcommand}.js`);
