@@ -33,11 +33,11 @@ module.exports = {
             const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
             const errorEmbed = new EmbedBuilder()
-                .setAuthor(interaction.user.tag, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
+                .setAuthor({ name: interaction.user.tag, iconURL: 'https://cdn.discordapp.com/emojis/314405560701419520.png' })
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
-                .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${randomResponse}\`\`\``)
+                .addFields({ name: '\u200B', value: `**:outbox_tray: Output:**\n\`\`\`js\n${randomResponse}\`\`\`` })
                 .setColor(0xff0000)
-                .setFooter(`${Date.now() - interaction.createdTimestamp}ms`);
+                .setFooter({ text: `${Date.now() - interaction.createdTimestamp}ms` });
 
             return interaction.reply({ embeds: [errorEmbed], ephemeral: false });
         }
@@ -57,21 +57,21 @@ module.exports = {
             }
 
             const evalEmbed = new EmbedBuilder()
-                .setAuthor(`Eval by ${interaction.user.tag}`, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
+                .setAuthor({ name: `Eval by ${interaction.user.tag}`, iconURL: 'https://cdn.discordapp.com/emojis/314405560701419520.png' })
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
-                .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${evaled}\`\`\``)
+                .addFields({ name: '\u200B', value: `**:outbox_tray: Output:**\n\`\`\`js\n${evaled}\`\`\`` })
                 .setColor(0x00ff00)
-                .setFooter(`${Date.now() - interaction.createdTimestamp}ms`);
+                .setFooter({ text: `${Date.now() - interaction.createdTimestamp}ms` });
 
             interaction.reply({ embeds: [evalEmbed], ephemeral: false });
 
         } catch (err) {
             const errorEmbed = new EmbedBuilder()
-                .setAuthor(`Eval by ${interaction.user.tag}`, 'https://cdn.discordapp.com/emojis/314405560701419520.png')
+                .setAuthor({ name: `Eval by ${interaction.user.tag}`, iconURL: 'https://cdn.discordapp.com/emojis/314405560701419520.png' })
                 .setDescription(`**:inbox_tray: Input:**\n\`\`\`js\n${code}\`\`\``)
-                .addField('\u200B', `**:outbox_tray: Output:**\n\`\`\`js\n${err}\`\`\``)
+                .addFields({ name: '\u200B', value: `**:outbox_tray: Output:**\n\`\`\`js\n${err}\`\`\`` })
                 .setColor(0xff0000)
-                .setFooter(`${Date.now() - interaction.createdTimestamp}ms`);
+                .setFooter({ text: `${Date.now() - interaction.createdTimestamp}ms` });
 
             interaction.reply({ embeds: [errorEmbed], ephemeral: false });
         }
