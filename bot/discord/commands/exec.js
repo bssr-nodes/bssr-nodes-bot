@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { exec } = require('child_process');
 const { EmbedBuilder } = require('discord.js');
+const AnsiToHtml = require('ansi-to-html');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -19,13 +20,12 @@ module.exports = {
             return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: false });
         }
 
-        const stripAnsi = await import('strip-ansi');  // Dynamic import
-
         exec(command, (error, stdout) => {
             let response = error ? error.message : stdout;
 
-            // Strip ANSI escape codes from the response
-            response = stripAnsi.default(response);
+            // Convert ANSI codes to HTML
+            const convert = new AnsiToHtml();
+            response = convert.toHtml(response);
 
             if (response.length > 4000) {
                 console.log(response);
@@ -33,7 +33,7 @@ module.exports = {
             }
 
             const embed = new EmbedBuilder()
-                .setDescription("```" + response + "```")
+                .setDescription(response)
                 .setTimestamp()
                 .setColor("#000000");
 

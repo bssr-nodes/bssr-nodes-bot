@@ -32,6 +32,7 @@
     "ping-tcp-js": "^1.5.0",
     "quick.db": "^7.1.3",
     "validator": "^13.9.0",
-    "strip-ansi": "latest"
+    "strip-ansi": "latest",
+    "ansi-to-html": "latest"
   }
 }
