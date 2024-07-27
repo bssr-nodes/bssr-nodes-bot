@@ -37,7 +37,7 @@ module.exports = {
         const member = interaction.member;
         
         let embed = new EmbedBuilder()
-            .setColor('BLUE')
+            .setColor('#0000FF')
             .addField(`__**Users:**__ (${Object.entries(commands.Users).length})`, desc(commands.Users).join('\n'));
 
         if (member.roles.cache.has('1250045509868195840')) {
