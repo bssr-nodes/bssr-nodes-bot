@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { exec } = require('child_process');
 const { EmbedBuilder } = require('discord.js');
+const stripAnsi = require('strip-ansi');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,7 +21,10 @@ module.exports = {
         }
 
         exec(command, (error, stdout) => {
-            let response = error || stdout;
+            let response = error ? error.message : stdout;
+
+            // Strip ANSI escape codes from the response
+            response = stripAnsi(response);
 
             if (response.length > 4000) {
                 console.log(response);
