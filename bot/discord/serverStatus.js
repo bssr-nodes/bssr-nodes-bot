@@ -47,9 +47,7 @@ const parse = async () => {
                 }
 
                 let serverUsage = "";
-                if (d.data.toLowerCase().startsWith("node")) {
-                    serverUsage = nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
-                } else if (d.data.toLowerCase() === "car") {
+                if (d.data.toLowerCase().startsWith("node") || d.data.toLowerCase() === "car") {
                     serverUsage = nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
                 }
 

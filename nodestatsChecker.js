@@ -1,5 +1,3 @@
-// i need to restore nstats
-
 const axios = require("axios");
 const ping = require("ping-tcp-js");
 const chalk = require("chalk");
@@ -35,11 +33,11 @@ if (config.Enabled.nodestatsChecker) {
     console.log(chalk.magenta("[NODE CHECKER] ") + chalk.green("Enabled"));
     // Node status
     setInterval(() => {
-        // Public nodes
+        // Public and private nodes
         for (let [node, data] of Object.entries(stats)) {
             setTimeout(() => {
                 axios({
-                    url: "http://" + data.Location + `?ip=${data.IP}&port=22`,
+                    url: `http://${data.Location}?ip=${data.IP}&port=22`,
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -58,12 +56,12 @@ if (config.Enabled.nodestatsChecker) {
                 }).catch((error) => {});
 
                 axios({
-                    url: config.Pterodactyl.hosturl + "/api/client/servers/" + data.serverID + "/resources",
+                    url: `${config.Pterodactyl.hosturl}/api/client/servers/${data.serverID}/resources`,
                     method: "GET",
                     followRedirect: true,
                     maxRedirects: 5,
                     headers: {
-                        Authorization: "Bearer " + config.Pterodactyl.apikeyclient,
+                        Authorization: `Bearer ${config.Pterodactyl.apikeyclient}`,
                         "Content-Type": "application/json",
                         Accept: "Application/vnd.pterodactyl.v1+json",
                     },
@@ -85,17 +83,17 @@ if (config.Enabled.nodestatsChecker) {
 
                 setTimeout(() => {
                     axios({
-                        url: config.Pterodactyl.hosturl + "/api/application/nodes/" + data.ID + "/allocations?per_page=9000",
+                        url: `${config.Pterodactyl.hosturl}/api/application/nodes/${data.ID}/allocations?per_page=9000`,
                         method: "GET",
                         followRedirect: true,
                         maxRedirects: 5,
                         headers: {
-                            Authorization: "Bearer " + config.Pterodactyl.apikey,
+                            Authorization: `Bearer ${config.Pterodactyl.apikey}`,
                             "Content-Type": "application/json",
                             Accept: "Application/vnd.pterodactyl.v1+json",
                         },
                     }).then((response) => {
-                        const serverCount = response.data.data.filter((m) => m.attributes.assigned == true).length;
+                        const serverCount = response.data.data.filter((m) => m.attributes.assigned === true).length;
 
                         nodeServers.set(node, {
                             servers: serverCount,
