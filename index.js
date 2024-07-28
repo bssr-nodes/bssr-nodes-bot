@@ -172,7 +172,7 @@ client.login(config.DiscordBot.Token);
 setInterval(async () => {
     users.length = 0;
     axios({
-        url: "https://panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
+        url: "https://private-panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
         method: "GET",
         followRedirect: true,
         maxRedirects: 5,

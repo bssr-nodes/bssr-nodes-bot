@@ -7,6 +7,7 @@ const chalk = require("chalk");
 let pingLocals = {
     UK: config.Ping.UK,
     CA: config.Ping.CA,
+    EU: config.Ping.EU,
 };
 
 let stats = {
@@ -21,6 +22,12 @@ let stats = {
         IP: config.Nodes.node2,
         ID: "9",
         Location: pingLocals.UK,
+    },
+    car: {
+        serverID: "f3e5h71c",
+        IP: config.Nodes.car,
+        ID: "9",
+        Location: pingLocals.EU,
     }
 };
 

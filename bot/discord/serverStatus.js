@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const nstatus = {
-    "Nodes": [
+    "Public Nodes": [
         {
             name: "Byte",
             data: "node1",
@@ -12,6 +12,13 @@ const nstatus = {
             data: "node2",
             maxCount: 50,
         }
+    ],
+    "Private Nodes": [
+        {
+            name: "Car",
+            data: "car",
+            maxCount: 1000,
+        },
     ],
 };
 
@@ -39,9 +46,12 @@ const parse = async () => {
                     continue;
                 }
 
-                let serverUsage = d.data.toLowerCase().startsWith("node")
-                    ? (nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A")
-                    : "";
+                let serverUsage = "";
+                if (d.data.toLowerCase().startsWith("node")) {
+                    serverUsage = nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
+                } else if (d.data.toLowerCase() === "car") {
+                    serverUsage = nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
+                }
 
                 let statusText = "";
                 if (da.maintenance) {
