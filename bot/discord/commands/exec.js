@@ -20,12 +20,13 @@ module.exports = {
             return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: false });
         }
 
-        exec(command, (error, stdout) => {
-            let response = error ? error.message : stdout;
+        exec(command, (error, stdout, stderr) => {
+            let response = error ? stderr : stdout;
 
-            // Convert ANSI codes to HTML
+            // Convert ANSI codes to plain text or HTML
             const convert = new AnsiToHtml();
             response = convert.toHtml(response);
+            response = response.replace(/\u001b\[.*?m/g, ''); // Remove any remaining ANSI codes
 
             if (response.length > 4000) {
                 console.log(response);
