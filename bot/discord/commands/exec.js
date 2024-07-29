@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { exec } = require('child_process');
 const { EmbedBuilder } = require('discord.js');
-const AnsiToHtml = require('ansi-to-html');
+const stripAnsi = require('strip-ansi');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -23,22 +23,27 @@ module.exports = {
         exec(command, (error, stdout, stderr) => {
             let response = error ? stderr : stdout;
 
-            // Convert ANSI codes to plain text or HTML
-            const convert = new AnsiToHtml();
-            response = convert.toHtml(response);
-            response = response.replace(/\u001b\[.*?m/g, ''); // Remove any remaining ANSI codes
+            // Strip ANSI codes from the response
+            response = stripAnsi(response);
 
-            if (response.length > 4000) {
-                console.log(response);
-                response = "Output too long.";
+            // Function to send the response in chunks if it exceeds Discord's message limit
+            const sendChunks = async (content) => {
+                const chunks = content.match(/[\s\S]{1,2000}/g) || [];
+                for (const chunk of chunks) {
+                    await interaction.followUp({ content: "```\n" + chunk + "\n```" });
+                }
+            };
+
+            if (response.length > 2000) {
+                sendChunks(response);
+            } else {
+                const embed = new EmbedBuilder()
+                    .setDescription("```" + response + "```")
+                    .setTimestamp()
+                    .setColor("#000000");
+
+                interaction.reply({ embeds: [embed] });
             }
-
-            const embed = new EmbedBuilder()
-                .setDescription("```" + response + "```")
-                .setTimestamp()
-                .setColor("#000000");
-
-            interaction.reply({ embeds: [embed] });
         });
     },
 };
