@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { exec } = require('child_process');
 const { EmbedBuilder } = require('discord.js');
-const stripAnsi = require('strip-ansi');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -19,6 +18,9 @@ module.exports = {
         if (!authorizedUsers.includes(interaction.user.id)) {
             return interaction.reply({ content: 'You are not authorized to use this command.', ephemeral: false });
         }
+
+        // Dynamically import strip-ansi
+        const stripAnsi = (await import('strip-ansi')).default;
 
         exec(command, (error, stdout, stderr) => {
             let response = error ? stderr : stdout;
@@ -38,7 +40,7 @@ module.exports = {
                 sendChunks(response);
             } else {
                 const embed = new EmbedBuilder()
-                    .setDescription("```" + response + "```")
+                    .setDescription("```\n" + response + "\n```")
                     .setTimestamp()
                     .setColor("#000000");
 
