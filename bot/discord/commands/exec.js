@@ -33,7 +33,7 @@ module.exports = {
             }
 
             const embed = new EmbedBuilder()
-                .setDescription(response)
+                .setDescription("```" + response + "```")
                 .setTimestamp()
                 .setColor("#000000");
 
