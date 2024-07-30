@@ -8,5 +8,7 @@ This bot manages user creation, server creation and general management of Pterod
     - GitHub: [Skyy-Development](https://github.com/Skyy-Development)
 - **Cyteon**
     - GitHub: [Cyteon](https://github.com/Cyteon)
+- **Snowyy**
+    - Github: Unknown
 
 This bot is originally by [DanBot Hosting](https://github.com/DanBot-Hosting/DanBotHostingStats). This bot has been modified for BSSR Nodes use.
