@@ -32,20 +32,20 @@ module.exports = async (client) => {
         });
     }, 30000);
 
-    setInterval(() => {
+//    setInterval(() => {
         //Auto Activities List
-        const activities = [
-            {
-                text: "over BSSR Nodes",
-                type: "WATCHING"
-            }
-        ];
+//        const activities = [
+//            {
+//                text: "over BSSR Nodes",
+//               type: "WATCHING"
+//            }
+//        ];
 
-        const activity = activities[Math.floor(Math.random() * activities.length)];
-        client.user.setActivity(activity.text, {
-            type: activity.type,
-        });
-    }, 15000);
+//        const activity = activities[Math.floor(Math.random() * activities.length)];
+//        client.user.setActivity(activity.text, {
+//            type: activity.type,
+//        });
+//    }, 15000);
 
     // Node status embed
 if (config.Enabled.NodeStats) {
