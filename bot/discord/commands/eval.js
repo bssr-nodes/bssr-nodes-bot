@@ -11,7 +11,7 @@ module.exports = {
                 .setDescription('The code to evaluate')
                 .setRequired(true)),
     async execute(interaction) {
-        const authorizedUsers = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461", "730375236197023785];
+        const authorizedUsers = ["569352110991343616", "1131236182899052696", "871722786006138960", "1080213687073251461", "730375236197023785"];
         const userId = interaction.user.id;
 
         const responses = [
