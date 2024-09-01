@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('@discordjs/builders');
+const { Colors } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -12,7 +13,7 @@ module.exports = {
                 `\`${config.DiscordBot.Prefix}ticket remove\` | Remove a user from the ticket\n` +
                 `\`${config.DiscordBot.Prefix}ticket upgrade\` | Let only admins see the ticket`
             )
-            .setColor('BLUE')
+            .setColor(Colors.Blue)
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 

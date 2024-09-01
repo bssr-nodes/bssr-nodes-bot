@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -23,7 +23,7 @@ module.exports = {
             });
 
             const embed = new EmbedBuilder()
-                .setColor('BLUE')
+                .setColor(Colors.Blue)
                 .setTitle('Ticket Upgraded')
                 .setDescription('Removed staff access. Now only you and specified roles can see your ticket.')
                 .setTimestamp()

@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -17,7 +17,7 @@ module.exports = {
             });
 
             const embed = new EmbedBuilder()
-                .setColor('GREEN')
+                .setColor(Colors.Green)
                 .setTitle('Ticket Visibility Updated')
                 .setDescription('Now all staff can see your ticket.')
                 .setTimestamp()

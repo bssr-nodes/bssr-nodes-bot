@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder, ChannelType } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, ChannelType, Colors } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -59,7 +59,7 @@ module.exports = {
         const userEmbed = new EmbedBuilder()
             .setTitle('Ticket Created')
             .setDescription('Please do not ping staff, it will not solve your problem faster.')
-            .setColor('BLUE')
+            .setColor(Colors.Blue)
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 

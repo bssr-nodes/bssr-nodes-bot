@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -42,7 +42,7 @@ module.exports = {
             });
 
             const embed = new EmbedBuilder()
-                .setColor('RED')
+                .setColor(Colors.Red)
                 .setTitle('User Removed from Ticket')
                 .setDescription(`Successfully removed ${user.tag} from this ticket.`)
                 .setTimestamp()

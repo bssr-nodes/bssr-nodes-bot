@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {    
     async execute(interaction) {
@@ -27,7 +27,7 @@ module.exports = {
             });
 
             const embed = new EmbedBuilder()
-                .setColor('GREEN')
+                .setColor(Colors.Green)
                 .setTitle('User Added to Ticket')
                 .setDescription(`Successfully added **${member.user.tag}** to this ticket.`)
                 .setTimestamp()
