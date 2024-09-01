@@ -13,8 +13,13 @@ module.exports = {
             return interaction.reply({ content: `Error fetching category: ${error.message}`, ephemeral: true });
         }
 
-        if (!category || category.type !== 'GUILD_CATEGORY') {
+        if (!category) {
             return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
+        }
+
+        if (category.type !== 'GUILD_CATEGORY') {
+            console.error('Fetched channel is not a GUILD_CATEGORY:', category);
+            return interaction.reply({ content: 'The category ID does not point to a valid category.', ephemeral: true });
         }
 
         const existingTicket = interaction.guild.channels.cache.find(ch => 
@@ -57,7 +62,7 @@ module.exports = {
             .setColor('BLUE')
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
-
+            
         try {
             if (!userData.get || userData.get(interaction.user.id) == null) {
                 userEmbed.addFields(
