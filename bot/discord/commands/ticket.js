@@ -40,7 +40,7 @@ module.exports = {
                 .setDescription('Displays a list of ticket commands'))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('create')
+                .setName('new')
                 .setDescription('Create a new ticket')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
