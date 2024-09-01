@@ -11,15 +11,21 @@ module.exports = {
 
         try {
             await interaction.channel.permissionOverwrites.edit("1250045509868195840", {
+                [PermissionFlagsBits.ViewChannel]: false,
+                [PermissionFlagsBits.SendMessages]: false,
+                [PermissionFlagsBits.ReadMessageHistory]: false,
+            });
+
+            await interaction.channel.permissionOverwrites.edit(interaction.user.id, {
                 [PermissionFlagsBits.ViewChannel]: true,
                 [PermissionFlagsBits.SendMessages]: true,
                 [PermissionFlagsBits.ReadMessageHistory]: true,
             });
 
             const embed = new EmbedBuilder()
-                .setColor('GREEN')
-                .setTitle('Ticket Visibility Updated')
-                .setDescription('Now all staff can see your ticket.')
+                .setColor('BLUE')
+                .setTitle('Ticket Upgraded')
+                .setDescription('Removed staff access. Now only you and specified roles can see your ticket.')
                 .setTimestamp()
                 .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
