@@ -2,7 +2,14 @@
 .idea
 .npm
 .nvm
+<<<<<<< HEAD
+<<<<<<< HEAD
 .cache
+=======
+>>>>>>> 469902f (push the changes i made on ptero)
+=======
+.cache
+>>>>>>> cad5d21 (publish changes made on pterodactyl)
 
 node_modules
 
@@ -22,7 +29,11 @@ package-lock.json
 .bashrc
 bot/discord/commands/status.js
 bot/discord/transcripts
+<<<<<<< HEAD
 neofetch
 neofetch/
 inxi
 start.sh
+=======
+neofetch
+>>>>>>> 469902f (push the changes i made on ptero)
