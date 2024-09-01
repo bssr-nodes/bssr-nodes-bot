@@ -3,9 +3,13 @@
 .npm
 .nvm
 <<<<<<< HEAD
+<<<<<<< HEAD
 .cache
 =======
 >>>>>>> 469902f (push the changes i made on ptero)
+=======
+.cache
+>>>>>>> cad5d21 (publish changes made on pterodactyl)
 
 node_modules
 
