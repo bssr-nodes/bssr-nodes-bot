@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, ChannelType } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -17,7 +17,7 @@ module.exports = {
             return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
         }
 
-        if (category.type !== 'GUILD_CATEGORY') {
+        if (category.type !== ChannelType.GuildCategory) {
             console.error('Fetched channel is not a GUILD_CATEGORY:', category);
             return interaction.reply({ content: 'The category ID does not point to a valid category.', ephemeral: true });
         }
@@ -34,7 +34,7 @@ module.exports = {
         try {
             channel = await interaction.guild.channels.create({
                 name: `${interaction.user.username}-ticket`,
-                type: 'GUILD_TEXT',
+                type: ChannelType.GuildText,
                 parent: category.id,
                 permissionOverwrites: [
                     {
@@ -62,7 +62,7 @@ module.exports = {
             .setColor('BLUE')
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
-            
+
         try {
             if (!userData.get || userData.get(interaction.user.id) == null) {
                 userEmbed.addFields(
