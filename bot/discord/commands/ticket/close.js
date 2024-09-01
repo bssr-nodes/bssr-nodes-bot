@@ -35,7 +35,7 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (i.customId === 'close_ticket') {
-                await i.reply({ content: "I'm closing this ticket.", ephemeral: true });
+                await i.reply({ content: "I'm closing this ticket.", ephemeral: false });
 
                 const messages = await interaction.channel.messages.fetch();
                 const script = messages
@@ -84,7 +84,7 @@ module.exports = {
                     interaction.channel.delete();
                 }, 5000);
             } else if (i.customId === 'cancel_ticket') {
-                await i.reply({ content: 'The ticket will not be closed.', ephemeral: true });
+                await i.reply({ content: 'The ticket will not be closed.', ephemeral: false });
 
                 const disabledRow = new ActionRowBuilder()
                     .addComponents(

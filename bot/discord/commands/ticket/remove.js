@@ -1,4 +1,4 @@
-const { EmbedBuilder, Colors } = require('discord.js');
+const { EmbedBuilder, Colors, PermissionsBitField } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -36,9 +36,9 @@ module.exports = {
 
         try {
             await interaction.channel.permissionOverwrites.edit(user.id, {
-                VIEW_CHANNEL: false,
-                SEND_MESSAGES: false,
-                READ_MESSAGE_HISTORY: false,
+                [PermissionsBitField.Flags.ViewChannel]: false,
+                [PermissionsBitField.Flags.SendMessages]: false,
+                [PermissionsBitField.Flags.ReadMessageHistory]: false,
             });
 
             const embed = new EmbedBuilder()
