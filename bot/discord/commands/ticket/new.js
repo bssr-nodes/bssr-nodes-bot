@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -27,15 +27,15 @@ module.exports = {
                 permissionOverwrites: [
                     {
                         id: interaction.guild.roles.everyone.id,
-                        deny: ['VIEW_CHANNEL'],
+                        deny: [PermissionFlagsBits.ViewChannel],
                     },
                     {
                         id: interaction.user.id,
-                        allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
                     },
                     {
                         id: staffRoleId,
-                        allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
                     }
                 ]
             });
