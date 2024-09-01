@@ -4,9 +4,16 @@ module.exports = {
     async execute(interaction) {
         const categoryId = '1250790663662993579';
         const staffRoleId = '1250045509868195840';
-        const category = interaction.guild.channels.cache.find(c => c.id === categoryId && c.type === 'GUILD_CATEGORY');
 
-        if (!category) {
+        let category;
+        try {
+            category = await interaction.guild.channels.fetch(categoryId);
+        } catch (error) {
+            console.error('Error fetching category:', error);
+            return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
+        }
+
+        if (!category || category.type !== 'GUILD_CATEGORY') {
             return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
         }
 
@@ -51,7 +58,7 @@ module.exports = {
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-        if (userData.get(interaction.user.id) == null) {
+        if (!userData.get || userData.get(interaction.user.id) == null) {
             userEmbed.addFields(
                 { name: '📡 | Account Info', value: 'This account is not linked with a console account.' }
             );
