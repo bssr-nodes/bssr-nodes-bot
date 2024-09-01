@@ -44,7 +44,7 @@ module.exports = {
                 .setDescription('Create a new ticket')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
-        const subcommandPath = path.join(__dirname, 'ticket' `${subcommand}.js`);
+        const subcommandPath = path.join(__dirname, 'ticket', `${subcommand}.js`);
 
         if (fs.existsSync(subcommandPath)) {
             const command = require(subcommandPath);
