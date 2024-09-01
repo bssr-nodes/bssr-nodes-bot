@@ -1,14 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('addticketuser')
-        .setDescription('Add a user to a ticket channel.')
-        .addUserOption(option =>
-            option.setName('user')
-                .setDescription('The user to add to the ticket')
-                .setRequired(true)),
-    
+module.exports = {    
     async execute(interaction) {
         if (!interaction.channel.name.includes('-ticket')) {
             return interaction.reply({

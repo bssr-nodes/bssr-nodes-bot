@@ -22,6 +22,7 @@ package-lock.json
 .bashrc
 bot/discord/commands/status.js
 bot/discord/transcripts
+neofetch
 neofetch/
 inxi
 start.sh
