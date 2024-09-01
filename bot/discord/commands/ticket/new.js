@@ -10,7 +10,7 @@ module.exports = {
             category = await interaction.guild.channels.fetch(categoryId);
         } catch (error) {
             console.error('Error fetching category:', error);
-            return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
+            return interaction.reply({ content: `Error fetching category: ${error.message}`, ephemeral: true });
         }
 
         if (!category || category.type !== 'GUILD_CATEGORY') {
@@ -48,7 +48,7 @@ module.exports = {
             });
         } catch (error) {
             console.error('Error creating ticket channel:', error);
-            return interaction.reply({ content: 'There was an error creating the ticket.', ephemeral: true });
+            return interaction.reply({ content: `Error creating ticket channel: ${error.message}`, ephemeral: true });
         }
 
         const userEmbed = new EmbedBuilder()
@@ -58,17 +58,29 @@ module.exports = {
             .setTimestamp()
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-        if (!userData.get || userData.get(interaction.user.id) == null) {
+        try {
+            if (!userData.get || userData.get(interaction.user.id) == null) {
+                userEmbed.addFields(
+                    { name: '📡 | Account Info', value: 'This account is not linked with a console account.' }
+                );
+            } else {
+                userEmbed.addFields(
+                    { name: '📡 | Account Info', value: `**Username:** ${userData.fetch(interaction.user.id + ".username")}\n**Email:** ||${userData.fetch(interaction.user.id + ".email")}||\n**Link Date:** ${userData.fetch(interaction.user.id + ".linkDate")}\n**Link Time:** ${userData.fetch(interaction.user.id + ".linkTime")}` }
+                );
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
             userEmbed.addFields(
-                { name: '📡 | Account Info', value: 'This account is not linked with a console account.' }
-            );
-        } else {
-            userEmbed.addFields(
-                { name: '📡 | Account Info', value: `**Username:** ${userData.fetch(interaction.user.id + ".username")}\n**Email:** ||${userData.fetch(interaction.user.id + ".email")}||\n**Link Date:** ${userData.fetch(interaction.user.id + ".linkDate")}\n**Link Time:** ${userData.fetch(interaction.user.id + ".linkTime")}` }
+                { name: '📡 | Account Info', value: 'There was an error fetching account info.' }
             );
         }
 
-        await channel.send({ content: `${interaction.user} <@&${staffRoleId}>`, embeds: [userEmbed] });
-        await interaction.reply({ content: `A ticket has been opened for you, check it out here: ${channel}`, ephemeral: true });
+        try {
+            await channel.send({ content: `${interaction.user} <@&${staffRoleId}>`, embeds: [userEmbed] });
+            await interaction.reply({ content: `A ticket has been opened for you, check it out here: ${channel}`, ephemeral: true });
+        } catch (error) {
+            console.error('Error sending ticket message:', error);
+            await interaction.reply({ content: `Error sending ticket message: ${error.message}`, ephemeral: true });
+        }
     }
 };
