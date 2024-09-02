@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder, ChannelType, Colors } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, ChannelType, Colors, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
     async execute(interaction) {
@@ -13,13 +13,8 @@ module.exports = {
             return interaction.reply({ content: `Error fetching category: ${error.message}`, ephemeral: true });
         }
 
-        if (!category) {
-            return interaction.reply({ content: 'Ticket category not found.', ephemeral: true });
-        }
-
-        if (category.type !== ChannelType.GuildCategory) {
-            console.error('Fetched channel is not a GUILD_CATEGORY:', category);
-            return interaction.reply({ content: 'The category ID does not point to a valid category.', ephemeral: true });
+        if (!category || category.type !== ChannelType.GuildCategory) {
+            return interaction.reply({ content: 'Ticket category not found or invalid.', ephemeral: true });
         }
 
         const existingTicket = interaction.guild.channels.cache.find(ch => 
@@ -47,7 +42,8 @@ module.exports = {
                     },
                     {
                         id: staffRoleId,
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+                        deny: [PermissionFlagsBits.SendMessages],
                     }
                 ]
             });
@@ -80,12 +76,54 @@ module.exports = {
             );
         }
 
+        // Create claim button
+        const claimButton = new ButtonBuilder()
+            .setCustomId('claim_ticket')
+            .setLabel('Claim Ticket')
+            .setStyle(ButtonStyle.Primary);
+
+        const actionRow = new ActionRowBuilder().addComponents(claimButton);
+
         try {
-            await channel.send({ content: `${interaction.user} <@&${staffRoleId}>`, embeds: [userEmbed] });
+            await channel.send({ content: `${interaction.user} <@&${staffRoleId}>`, embeds: [userEmbed], components: [actionRow] });
             await interaction.reply({ content: `A ticket has been opened for you, check it out here: ${channel}`, ephemeral: true });
         } catch (error) {
             console.error('Error sending ticket message:', error);
             await interaction.reply({ content: `Error sending ticket message: ${error.message}`, ephemeral: true });
         }
+
+        const filter = (btnInteraction) => btnInteraction.customId === 'claim_ticket' && btnInteraction.channelId === channel.id;
+        const collector = channel.createMessageComponentCollector({ filter, time: 3600000 });
+
+        collector.on('collect', async (btnInteraction) => {
+            const claimer = btnInteraction.member;
+            
+            try {
+                await channel.permissionOverwrites.edit(claimer.id, {
+                    [PermissionFlagsBits.ViewChannel]: true,
+                    [PermissionFlagsBits.SendMessages]: true,
+                    [PermissionFlagsBits.ReadMessageHistory]: true,
+                });
+
+                await channel.permissionOverwrites.edit(staffRoleId, {
+                    [PermissionFlagsBits.ViewChannel]: true,
+                    [PermissionFlagsBits.ReadMessageHistory]: true,
+                    [PermissionFlagsBits.SendMessages]: false,
+                });
+
+                const claimedEmbed = new EmbedBuilder()
+                    .setTitle('Ticket Claimed')
+                    .setDescription(`This ticket has been claimed by ${claimer.user.tag}. Only they can respond now.`)
+                    .setColor(Colors.Green)
+                    .setTimestamp()
+                    .setFooter({ text: `Claimed by ${claimer.user.tag}`, iconURL: claimer.user.displayAvatarURL() });
+
+                await btnInteraction.update({ embeds: [claimedEmbed], components: [] });
+
+            } catch (error) {
+                console.error('Error updating permissions for claim:', error);
+                await btnInteraction.reply({ content: `Error claiming the ticket: ${error.message}`, ephemeral: true });
+            }
+        });
     }
 };
