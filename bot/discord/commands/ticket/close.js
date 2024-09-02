@@ -1,4 +1,4 @@
-const { ButtonBuilder, ButtonStyle, EmbedBuilder, ActionRowBuilder } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, EmbedBuilder, ActionRowBuilder, TextInputBuilder, ModalBuilder, TextInputStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -80,9 +80,52 @@ module.exports = {
 
                 await msg.edit({ components: [disabledRow] });
 
-                setTimeout(() => {
-                    interaction.channel.delete();
-                }, 5000);
+                const feedbackModal = new ModalBuilder()
+                    .setCustomId('feedback_modal')
+                    .setTitle('Ticket Feedback');
+
+                const feedbackInput = new TextInputBuilder()
+                    .setCustomId('feedback_input')
+                    .setLabel('Please provide your feedback about the support you received:')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
+
+                const feedbackRow = new ActionRowBuilder().addComponents(feedbackInput);
+                feedbackModal.addComponents(feedbackRow);
+
+                await i.showModal(feedbackModal);
+
+                const feedbackFilter = interaction => interaction.customId === 'feedback_modal' && interaction.user.id === i.user.id;
+                const feedbackCollector = interaction.channel.createMessageComponentCollector({ filter: feedbackFilter, time: 30000 });
+
+                feedbackCollector.on('collect', async feedbackInteraction => {
+                    const feedback = feedbackInteraction.fields.getTextInputValue('feedback_input');
+
+                    const feedbackLogEmbed = new EmbedBuilder()
+                        .setAuthor({ name: 'Feedback Received', iconURL: interaction.client.user.avatarURL() })
+                        .setDescription(`Feedback from ${feedbackInteraction.user.tag} (${feedbackInteraction.user.id})`)
+                        .addFields({ name: 'Feedback', value: feedback })
+                        .setColor(Colors.Green)
+                        .setTimestamp();
+
+                    await logChannel.send({ embeds: [feedbackLogEmbed] });
+
+                    await feedbackInteraction.reply({ content: 'Thank you for your feedback!', ephemeral: true });
+
+                    setTimeout(() => {
+                        interaction.channel.delete();
+                    }, 5000);
+                });
+
+                feedbackCollector.on('end', collected => {
+                    if (collected.size === 0) {
+                        interaction.editReply({ content: 'No feedback received. The ticket will now be closed.', components: [] });
+                        setTimeout(() => {
+                            interaction.channel.delete();
+                        }, 5000);
+                    }
+                });
+
             } else if (i.customId === 'cancel_ticket') {
                 await i.reply({ content: 'The ticket will not be closed.', ephemeral: false });
 

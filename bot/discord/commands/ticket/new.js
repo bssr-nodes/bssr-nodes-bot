@@ -17,6 +17,7 @@ module.exports = {
             return interaction.reply({ content: 'Ticket category not found or invalid.', ephemeral: true });
         }
 
+        // Check for existing ticket
         const existingTicket = interaction.guild.channels.cache.find(ch => 
             ch.name.includes(interaction.user.username.toLowerCase().replace(' ', '-'))
         );
@@ -76,7 +77,6 @@ module.exports = {
             );
         }
 
-        // Create claim button
         const claimButton = new ButtonBuilder()
             .setCustomId('claim_ticket')
             .setLabel('Claim Ticket')
@@ -97,7 +97,7 @@ module.exports = {
 
         collector.on('collect', async (btnInteraction) => {
             const claimer = btnInteraction.member;
-            
+
             try {
                 await channel.permissionOverwrites.edit(claimer.id, {
                     [PermissionFlagsBits.ViewChannel]: true,
@@ -111,14 +111,11 @@ module.exports = {
                     [PermissionFlagsBits.SendMessages]: false,
                 });
 
-                const claimedEmbed = new EmbedBuilder()
-                    .setTitle('Ticket Claimed')
-                    .setDescription(`This ticket has been claimed by ${claimer.user.tag}. Only they can respond now.`)
-                    .setColor(Colors.Green)
-                    .setTimestamp()
-                    .setFooter({ text: `Claimed by ${claimer.user.tag}`, iconURL: claimer.user.displayAvatarURL() });
+                userEmbed.addFields(
+                    { name: '🛠️ | Claimed By', value: `${claimer.user.tag} has claimed this ticket.` }
+                );
 
-                await btnInteraction.update({ embeds: [claimedEmbed], components: [] });
+                await btnInteraction.update({ embeds: [userEmbed], components: [] });
 
             } catch (error) {
                 console.error('Error updating permissions for claim:', error);
