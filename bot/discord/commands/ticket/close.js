@@ -35,8 +35,9 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (i.customId === 'close_ticket') {
-                await i.reply({ content: "I'm closing this ticket.", ephemeral: false });
+                await i.deferUpdate();
 
+                // Feedback modal
                 const feedbackModal = new ModalBuilder()
                     .setCustomId('feedback_modal')
                     .setTitle('Ticket Feedback');
@@ -53,8 +54,8 @@ module.exports = {
 
                 await i.showModal(feedbackModal);
 
-                const filterModal = interaction => interaction.customId === 'feedback_modal' && interaction.user.id === i.user.id;
-                const modalInteraction = await interaction.awaitModalSubmit({ filterModal, time: 60000 }).catch(console.error);
+                const filterModal = modalInteraction => modalInteraction.customId === 'feedback_modal' && modalInteraction.user.id === i.user.id;
+                const modalInteraction = await i.awaitModalSubmit({ filter: filterModal, time: 60000 }).catch(console.error);
 
                 if (modalInteraction) {
                     const feedback = modalInteraction.fields.getTextInputValue('feedback_input');
@@ -117,7 +118,7 @@ module.exports = {
                     }, 5000);
                 }
             } else if (i.customId === 'cancel_ticket') {
-                await i.reply({ content: 'The ticket will not be closed.', ephemeral: false });
+                await i.deferUpdate();
 
                 const disabledRow = new ActionRowBuilder()
                     .addComponents(
