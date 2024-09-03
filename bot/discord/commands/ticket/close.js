@@ -1,11 +1,10 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
 module.exports = {
     async execute(interaction) {
         try {
-            // Configuration
             const config = {
                 requiredRoles: ['Staff'],
                 logChannelId: '1251439976546177086',
@@ -105,7 +104,7 @@ module.exports = {
                     await logChannel.send({ embeds: [logEmbed], files: [transcriptPath] });
 
                     await interaction.channel.permissionOverwrites.edit(interaction.guild.id, {
-                        VIEW_CHANNEL: false,
+                        [PermissionsBitField.Flags.ViewChannel]: false
                     });
 
                     setTimeout(async () => {
