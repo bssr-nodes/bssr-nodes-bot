@@ -63,8 +63,12 @@ module.exports = {
                     let closingMessage;
                     if (m.customId === 'message_1') {
                         closingMessage = 'Thank you for reaching out to support. Your ticket is now closed.';
+                        await m.update({ content: 'Closing the ticket with the selected message...', components: [], ephemeral: true });
+                        await handleTicketClosure(interaction, closingMessage);
                     } else if (m.customId === 'message_2') {
                         closingMessage = 'Support has successfully resolved your issue. The ticket is now closed.';
+                        await m.update({ content: 'Closing the ticket with the selected message...', components: [], ephemeral: true });
+                        await handleTicketClosure(interaction, closingMessage);
                     } else if (m.customId === 'custom_message') {
                         const modal = new ModalBuilder()
                             .setCustomId('custom_message_modal')
@@ -79,18 +83,14 @@ module.exports = {
                         modal.addComponents(modalActionRow);
 
                         await m.showModal(modal);
-                        return;
                     }
-
-                    await handleTicketClosure(interaction, closingMessage);
-                    await m.update({ content: 'Ticket is being closed...', components: [], ephemeral: true });
                 });
 
-                interaction.client.on('interactionCreate', async modalInteraction => {
+                interaction.client.once('interactionCreate', async modalInteraction => {
                     if (!modalInteraction.isModalSubmit() || modalInteraction.customId !== 'custom_message_modal') return;
                     const customMessage = modalInteraction.fields.getTextInputValue('closing_message_input');
+                    await modalInteraction.reply({ content: 'Closing the ticket with your custom message...', ephemeral: true });
                     await handleTicketClosure(interaction, customMessage);
-                    await modalInteraction.reply({ content: 'Ticket is being closed with your custom message...', ephemeral: true });
                 });
 
             } else if (i.customId === 'cancel_close') {
