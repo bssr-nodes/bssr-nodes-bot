@@ -35,8 +35,6 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (i.customId === 'confirm_close') {
-                await i.deferUpdate();
-
                 const closingMessageEmbed = new EmbedBuilder()
                     .setTitle('Select a Closing Message')
                     .setDescription('Choose a message to send when closing this ticket.')
@@ -59,7 +57,7 @@ module.exports = {
 
                 const messageRow = new ActionRowBuilder().addComponents(message1Button, message2Button, customMessageButton);
 
-                await i.editReply({ embeds: [closingMessageEmbed], components: [messageRow] });
+                await i.update({ embeds: [closingMessageEmbed], components: [messageRow] });
 
                 const messageCollector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
 
@@ -124,7 +122,7 @@ module.exports = {
             fs.writeFileSync(transcriptPath, transcript);
 
             const tags = ['Resolved', 'Closed'];
-            const autoCloseDelay = 5000;
+            const autoCloseDelay = 5000; 
 
             const closeEmbed = new EmbedBuilder()
                 .setDescription(closingMessage)
