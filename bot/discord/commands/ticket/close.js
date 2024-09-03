@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
     async execute(interaction) {
-        const requiredRole = 'Staff'; 
+        const requiredRole = 'Staff';
         if (!interaction.member.roles.cache.some(role => role.name === requiredRole)) {
             return interaction.reply({ content: 'You do not have the necessary role to close this ticket.', ephemeral: true });
         }
@@ -35,6 +35,8 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (i.customId === 'confirm_close') {
+                await i.deferUpdate();
+
                 const closingMessageEmbed = new EmbedBuilder()
                     .setTitle('Select a Closing Message')
                     .setDescription('Choose a message to send when closing this ticket.')
@@ -57,18 +59,17 @@ module.exports = {
 
                 const messageRow = new ActionRowBuilder().addComponents(message1Button, message2Button, customMessageButton);
 
-                await i.update({ embeds: [closingMessageEmbed], components: [messageRow] });
+                await i.editReply({ embeds: [closingMessageEmbed], components: [messageRow] });
 
                 const messageCollector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
 
                 messageCollector.on('collect', async m => {
-                    let closingMessage;
                     if (m.customId === 'message_1') {
-                        closingMessage = 'Thank you for reaching out to support. Your ticket is now closed.';
+                        const closingMessage = 'Thank you for reaching out to support. Your ticket is now closed.';
                         await m.update({ content: 'Closing the ticket with the selected message...', components: [] });
                         await handleTicketClosure(interaction, closingMessage);
                     } else if (m.customId === 'message_2') {
-                        closingMessage = 'Support has successfully resolved your issue. The ticket is now closed.';
+                        const closingMessage = 'Support has successfully resolved your issue. The ticket is now closed.';
                         await m.update({ content: 'Closing the ticket with the selected message...', components: [] });
                         await handleTicketClosure(interaction, closingMessage);
                     } else if (m.customId === 'custom_message') {
@@ -91,7 +92,8 @@ module.exports = {
                 interaction.client.once('interactionCreate', async modalInteraction => {
                     if (!modalInteraction.isModalSubmit() || modalInteraction.customId !== 'custom_message_modal') return;
                     const customMessage = modalInteraction.fields.getTextInputValue('closing_message_input');
-                    await modalInteraction.reply({ content: 'Closing the ticket with your custom message...', ephemeral: true });
+                    await modalInteraction.deferReply();
+                    await modalInteraction.editReply({ content: 'Closing the ticket with your custom message...', ephemeral: true });
                     await handleTicketClosure(interaction, customMessage);
                 });
 
