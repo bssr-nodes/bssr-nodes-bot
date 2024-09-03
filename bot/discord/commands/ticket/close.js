@@ -1,4 +1,4 @@
-const { ButtonBuilder, ButtonStyle, EmbedBuilder, ActionRowBuilder, TextInputBuilder, ModalBuilder, TextInputStyle } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, EmbedBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ModalBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -37,57 +37,15 @@ module.exports = {
             if (i.customId === 'close_ticket') {
                 await i.reply({ content: "I'm closing this ticket.", ephemeral: false });
 
-                const messages = await interaction.channel.messages.fetch();
-                const script = messages
-                    .reverse()
-                    .map(m => `${m.author.tag}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`)
-                    .join('\n');
-
-                const transcriptDir = path.join(__dirname, '../../transcripts');
-                if (!fs.existsSync(transcriptDir)) {
-                    fs.mkdirSync(transcriptDir);
-                }
-
-                const transcriptPath = path.join(transcriptDir, `${interaction.channel.name}.txt`);
-                fs.writeFileSync(transcriptPath, script);
-
-                const logChannel = interaction.client.channels.cache.get('1251439976546177086');
-                const logEmbed = new EmbedBuilder()
-                    .setAuthor({ name: `${interaction.client.user.username} | Tickets`, iconURL: interaction.client.user.avatarURL() })
-                    .setDescription('New ticket is closed!')
-                    .addFields(
-                        { name: '🚧 | Info', value: `**Closed by:** \`${interaction.user.tag} (${interaction.user.id})\`\n> **Ticket Name:** \`${interaction.channel.name}\`` }
-                    )
-                    .setThumbnail('https://cdn.discordapp.com/emojis/860696559573663815.png?v=1')
-                    .setColor('#0099ff')
-                    .setTimestamp();
-
-                await logChannel.send({ embeds: [logEmbed], files: [transcriptPath] });
-
-                const disabledRow = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('close_ticket')
-                            .setLabel('Closed')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setDisabled(true),
-                        new ButtonBuilder()
-                            .setCustomId('cancel_ticket')
-                            .setLabel('Canceled')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setDisabled(true)
-                    );
-
-                await msg.edit({ components: [disabledRow] });
-
                 const feedbackModal = new ModalBuilder()
                     .setCustomId('feedback_modal')
                     .setTitle('Ticket Feedback');
 
                 const feedbackInput = new TextInputBuilder()
                     .setCustomId('feedback_input')
-                    .setLabel('Please provide your feedback about the support you received:')
+                    .setLabel('Your Feedback')
                     .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Please provide your feedback...')
                     .setRequired(true);
 
                 const feedbackRow = new ActionRowBuilder().addComponents(feedbackInput);
@@ -95,37 +53,69 @@ module.exports = {
 
                 await i.showModal(feedbackModal);
 
-                const feedbackFilter = interaction => interaction.customId === 'feedback_modal' && interaction.user.id === i.user.id;
-                const feedbackCollector = interaction.channel.createMessageComponentCollector({ filter: feedbackFilter, time: 30000 });
+                const filterModal = interaction => interaction.customId === 'feedback_modal' && interaction.user.id === i.user.id;
+                const modalInteraction = await interaction.awaitModalSubmit({ filterModal, time: 60000 }).catch(console.error);
 
-                feedbackCollector.on('collect', async feedbackInteraction => {
-                    const feedback = feedbackInteraction.fields.getTextInputValue('feedback_input');
+                if (modalInteraction) {
+                    const feedback = modalInteraction.fields.getTextInputValue('feedback_input');
 
-                    const feedbackLogEmbed = new EmbedBuilder()
-                        .setAuthor({ name: 'Feedback Received', iconURL: interaction.client.user.avatarURL() })
-                        .setDescription(`Feedback from ${feedbackInteraction.user.tag} (${feedbackInteraction.user.id})`)
-                        .addFields({ name: 'Feedback', value: feedback })
-                        .setColor(Colors.Green)
+                    const feedbackDir = path.join(__dirname, '../../feedback');
+                    if (!fs.existsSync(feedbackDir)) {
+                        fs.mkdirSync(feedbackDir);
+                    }
+
+                    const feedbackPath = path.join(feedbackDir, `${interaction.channel.name}_feedback.txt`);
+                    fs.writeFileSync(feedbackPath, `Feedback by ${interaction.user.tag} (${interaction.user.id}):\n${feedback}\n\n`);
+
+                    await modalInteraction.reply({ content: 'Thank you for your feedback!', ephemeral: true });
+
+                    const messages = await interaction.channel.messages.fetch();
+                    const script = messages
+                        .reverse()
+                        .map(m => `${m.author.tag}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`)
+                        .join('\n');
+
+                    const transcriptDir = path.join(__dirname, '../../transcripts');
+                    if (!fs.existsSync(transcriptDir)) {
+                        fs.mkdirSync(transcriptDir);
+                    }
+
+                    const transcriptPath = path.join(transcriptDir, `${interaction.channel.name}.txt`);
+                    fs.writeFileSync(transcriptPath, script);
+
+                    const logChannel = interaction.client.channels.cache.get('1251439976546177086');
+                    const logEmbed = new EmbedBuilder()
+                        .setAuthor({ name: `${interaction.client.user.username} | Tickets`, iconURL: interaction.client.user.avatarURL() })
+                        .setDescription('New ticket is closed!')
+                        .addFields(
+                            { name: '🚧 | Info', value: `**Closed by:** \`${interaction.user.tag} (${interaction.user.id})\`\n> **Ticket Name:** \`${interaction.channel.name}\`` }
+                        )
+                        .setThumbnail('https://cdn.discordapp.com/emojis/860696559573663815.png?v=1')
+                        .setColor('#0099ff')
                         .setTimestamp();
 
-                    await logChannel.send({ embeds: [feedbackLogEmbed] });
+                    await logChannel.send({ embeds: [logEmbed], files: [transcriptPath, feedbackPath] });
 
-                    await feedbackInteraction.reply({ content: 'Thank you for your feedback!', ephemeral: true });
+                    const disabledRow = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('close_ticket')
+                                .setLabel('Closed')
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(true),
+                            new ButtonBuilder()
+                                .setCustomId('cancel_ticket')
+                                .setLabel('Canceled')
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(true)
+                        );
+
+                    await msg.edit({ components: [disabledRow] });
 
                     setTimeout(() => {
                         interaction.channel.delete();
                     }, 5000);
-                });
-
-                feedbackCollector.on('end', collected => {
-                    if (collected.size === 0) {
-                        interaction.editReply({ content: 'No feedback received. The ticket will now be closed.', components: [] });
-                        setTimeout(() => {
-                            interaction.channel.delete();
-                        }, 5000);
-                    }
-                });
-
+                }
             } else if (i.customId === 'cancel_ticket') {
                 await i.reply({ content: 'The ticket will not be closed.', ephemeral: false });
 
