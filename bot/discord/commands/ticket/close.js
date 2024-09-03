@@ -34,6 +34,7 @@ module.exports = {
         const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
 
         collector.on('collect', async i => {
+            console.log(`Button pressed: ${i.customId}`);
             if (i.customId === 'confirm_close') {
                 const closingMessageEmbed = new EmbedBuilder()
                     .setTitle('Select a Closing Message')
@@ -57,11 +58,16 @@ module.exports = {
 
                 const messageRow = new ActionRowBuilder().addComponents(message1Button, message2Button, customMessageButton);
 
-                await i.update({ embeds: [closingMessageEmbed], components: [messageRow] });
+                try {
+                    await i.update({ embeds: [closingMessageEmbed], components: [messageRow] });
+                } catch (error) {
+                    console.error('Failed to update interaction:', error);
+                }
 
                 const messageCollector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
 
                 messageCollector.on('collect', async m => {
+                    console.log(`Message button pressed: ${m.customId}`);
                     if (m.customId === 'message_1') {
                         const closingMessage = 'Thank you for reaching out to support. Your ticket is now closed.';
                         await m.update({ content: 'Closing the ticket with the selected message...', components: [] });
@@ -83,7 +89,17 @@ module.exports = {
                         const modalActionRow = new ActionRowBuilder().addComponents(messageInput);
                         modal.addComponents(modalActionRow);
 
-                        await m.showModal(modal);
+                        try {
+                            await m.showModal(modal);
+                        } catch (error) {
+                            console.error('Failed to show modal:', error);
+                        }
+                    }
+                });
+
+                collector.on('end', collected => {
+                    if (collected.size === 0) {
+                        interaction.editReply({ content: 'Ticket closure timed out.', components: [] });
                     }
                 });
 
@@ -97,12 +113,6 @@ module.exports = {
 
             } else if (i.customId === 'cancel_close') {
                 await i.update({ content: 'Ticket closure canceled.', components: [] });
-            }
-        });
-
-        collector.on('end', collected => {
-            if (collected.size === 0) {
-                interaction.editReply({ content: 'Ticket closure timed out.', components: [] });
             }
         });
 
@@ -122,7 +132,7 @@ module.exports = {
             fs.writeFileSync(transcriptPath, transcript);
 
             const tags = ['Resolved', 'Closed'];
-            const autoCloseDelay = 5000; 
+            const autoCloseDelay = 5000;
 
             const closeEmbed = new EmbedBuilder()
                 .setDescription(closingMessage)
