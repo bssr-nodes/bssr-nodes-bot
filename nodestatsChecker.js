@@ -2,16 +2,12 @@ const axios = require("axios");
 const ping = require("ping-tcp-js");
 const chalk = require("chalk");
 
-let pingLocals = {
-    EU: config.Ping.EU,
-};
-
 let stats = {
     car: {
         serverID: "73284280",
-        IP: config.Nodes.Car || null,
+        IP: config.Nodes.Car,
         ID: "1",
-        Location: pingLocals.EU,
+        wingsPort: 8443
     }
 };
 
@@ -21,73 +17,42 @@ if (config.Enabled.nodestatsChecker) {
     setInterval(() => {
         for (let [node, data] of Object.entries(stats)) {
             setTimeout(async () => {
-                if (!data.IP) {
-                    console.error(`[NODE ERROR] IP address for ${node} is not defined.`);
-                    return;
-                }
+                let wingsStatus = "Unknown";
+                let systemStatus = "Unknown";
 
                 try {
-                    let nodeStatusResponse = await axios({
-                        url: `${config.Pterodactyl.hosturl}/api/application/nodes/${data.ID}`,
+                    let pterodactylResponse = await axios({
+                        url: `${config.Pterodactyl.hosturl}/api/client/servers/${data.serverID}/resources`,
                         method: "GET",
                         headers: {
-                            Authorization: `Bearer ${config.Pterodactyl.apikey}`,
+                            Authorization: `Bearer ${config.Pterodactyl.apikeyclient}`,
                             "Content-Type": "application/json",
                             Accept: "Application/vnd.pterodactyl.v1+json"
                         }
                     });
 
-                    const nodeStatusData = nodeStatusResponse.data.attributes.under_maintenance;
-                    
-                    if (nodeStatusData === false) {
-                        console.log(`[NODE STATUS] ${node} is online according to Pterodactyl API`);
-                    } else {
-                        console.log(`[NODE STATUS] ${node} is offline according to Pterodactyl API, attempting to ping the server IP...`);
-                        try {
-                            let pingResponse = await ping.ping(data.IP, 22);
-                            if (pingResponse.open) {
-                                console.log(`[PING SUCCESS] ${node} is responding to ping.`);
-                            } else {
-                                console.error(`[PING ERROR] ${node} is not responding to ping.`);
-                            }
-                        } catch (pingError) {
-                            console.error(`[PING ERROR] Failed to ping ${node}:`, pingError.message);
-                        }
-                    }
+                    wingsStatus = "Online";
+                    console.log(`[NODE STATUS] ${node} Wings is online`);
                 } catch (error) {
-                    console.error(`[PTERODACTYL API ERROR] Error checking node status for ${node}:`, error.message);
+                    console.error(`[PTERODACTYL ERROR] Error checking Wings status for ${node}:`, error.message);
+                    wingsStatus = "Offline";
 
+                    console.log(`[NODE STATUS] ${node} is offline according to Pterodactyl API, attempting to ping the Wings daemon...`);
                     try {
-                        let pingResponse = await ping.ping(data.IP, 22);
-                        if (pingResponse.open) {
-                            console.log(`[PING SUCCESS] ${node} is responding to ping, likely a Pterodactyl API issue.`);
-                        } else {
-                            console.error(`[PING FALLBACK ERROR] ${node} is not responding to ping.`);
-                        }
+                        await ping.ping(data.IP, data.wingsPort);
+                        systemStatus = "Online";
+                        console.log(`[PING SUCCESS] ${node} Wings daemon is online`);
                     } catch (pingError) {
-                        console.error(`[PING FALLBACK ERROR] Failed to ping ${node}:`, pingError.message);
+                        console.error(`[PING ERROR] ${node} Wings daemon is not responding to ping:`, pingError.message);
+                        systemStatus = "Offline";
                     }
                 }
 
-                setTimeout(async () => {
-                    try {
-                        let allocationResponse = await axios({
-                            url: `${config.Pterodactyl.hosturl}/api/application/nodes/${data.ID}/allocations?per_page=9000`,
-                            method: "GET",
-                            headers: {
-                                Authorization: `Bearer ${config.Pterodactyl.apikey}`,
-                                "Content-Type": "application/json",
-                                Accept: "Application/vnd.pterodactyl.v1+json"
-                            }
-                        });
-
-                        const serverCount = allocationResponse.data.data.filter(m => m.attributes.assigned === true).length;
-                        nodeServers.set(node, { servers: serverCount });
-                        console.log(`[NODE SERVERS] ${node} has ${serverCount} servers.`);
-                    } catch (error) {
-                        console.error(`[ALLOCATION ERROR] Error fetching server allocation for ${node}:`, error.message);
-                    }
-                }, 2000);
+                if (wingsStatus === "Offline" && systemStatus === "Online") {
+                    console.log(`[STATUS] ${node}: Wings Offline, System Online`);
+                } else if (systemStatus === "Offline") {
+                    console.log(`[STATUS] ${node}: System Offline`);
+                }
             }, 2000);
         }
     }, 10000);

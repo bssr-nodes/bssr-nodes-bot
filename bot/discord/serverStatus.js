@@ -1,4 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
+const axios = require("axios");
+const ping = require("ping-tcp-js");
 
 const nstatus = {
     "Public Nodes": [
@@ -9,6 +11,10 @@ const nstatus = {
         },
     ],
 };
+
+const nodeStatus = new Map(); // Mock for demonstration
+const nodeServers = new Map(); // Mock for demonstration
+const nodePing = new Map(); // Mock for demonstration
 
 const parse = async () => {
     let toReturn = {};
@@ -22,9 +28,10 @@ const parse = async () => {
             }, 3000);
 
             try {
+                // Fetching node status
                 let da = await nodeStatus.get(d.data.toLowerCase());
                 let nodeData = await nodeServers.get(d.name.toLowerCase());
-                let ping = await nodePing.fetch(d.name.toLowerCase());
+                let pingResult = await nodePing.fetch(d.name.toLowerCase());
 
                 clearTimeout(timer);
                 if (timeoutReached) continue;
@@ -42,7 +49,15 @@ const parse = async () => {
                 } else if (da.status) {
                     statusText = `🟢 Online (${serverUsage})`;
                 } else if (da.is_vm_online == null) {
-                    statusText = "<:error:1265632865215971390> **Offline**";
+                    // If node status is null, check the Wings daemon status
+                    console.log(`[NODE STATUS] ${d.name} is offline according to Pterodactyl API, attempting to ping the server IP...`);
+                    try {
+                        await ping.ping(config.Nodes[d.data], 8443); // Ping the Wings daemon on port 8443
+                        statusText = `${da.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390> **System**"} **online** ${serverUsage}`;
+                    } catch (pingError) {
+                        console.error(`[PING ERROR] ${d.name} Wings daemon is not responding to ping:`, pingError.message);
+                        statusText = "<:error:1265632865215971390> **System** **offline**";
+                    }
                 } else {
                     statusText = `${da.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390> **System**"} **offline** ${serverUsage}`;
                 }
