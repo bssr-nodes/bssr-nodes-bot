@@ -108,6 +108,15 @@ module.exports = {
                 .addUserOption(option =>
                     option.setName('target')
                         .setDescription('The member whose history you want to view')
+                        .setRequired(true)))
+        .addSubCommand(subcommand =>
+            subcommand
+                .setName('addadmin')
+                .setDescription('Grants admin access to a user\'s Pterodactyl console account.')
+                .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
+                .addUserOption(option => 
+                    option.setName('user')
+                        .setDescription('The user you want to grant admin access to')
                         .setRequired(true))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
