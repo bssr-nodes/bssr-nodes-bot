@@ -2,10 +2,6 @@ const axios = require("axios");
 const ping = require("ping-tcp-js");
 const chalk = require("chalk");
 
-// Initialize Maps for node status and ping information
-let nodeStatus = new Map();
-let nodePing = new Map();
-
 let pingLocals = {
     EU: config.Ping.EU,
 };
@@ -13,7 +9,7 @@ let pingLocals = {
 let stats = {
     car: {
         serverID: "73284280",
-        IP: config.Nodes.car,
+        IP: config.Nodes.Car || null,
         ID: "1",
         Location: pingLocals.EU,
     }
@@ -25,6 +21,11 @@ if (config.Enabled.nodestatsChecker) {
     setInterval(() => {
         for (let [node, data] of Object.entries(stats)) {
             setTimeout(async () => {
+                if (!data.IP) {
+                    console.error(`[NODE ERROR] IP address for ${node} is not defined.`);
+                    return;
+                }
+
                 try {
                     let nodeStatusResponse = await axios({
                         url: `${config.Pterodactyl.hosturl}/api/application/nodes/${data.ID}`,
@@ -40,38 +41,31 @@ if (config.Enabled.nodestatsChecker) {
                     
                     if (nodeStatusData === false) {
                         console.log(`[NODE STATUS] ${node} is online according to Pterodactyl API`);
-                        nodeStatus.set(`${node}.timestamp`, Date.now());
-                        nodeStatus.set(`${node}.status`, true);
-                        nodeStatus.set(`${node}.is_vm_online`, true);
                     } else {
                         console.log(`[NODE STATUS] ${node} is offline according to Pterodactyl API, attempting to ping the server IP...`);
                         try {
-                            await ping.ping(data.IP, 22);
-                            console.log(`[PING SUCCESS] ${node} is responding to ping, likely a Pterodactyl issue.`);
-                            nodeStatus.set(`${node}.timestamp`, Date.now());
-                            nodeStatus.set(`${node}.status`, true);
-                            nodeStatus.set(`${node}.is_vm_online`, false);
+                            let pingResponse = await ping.ping(data.IP, 22);
+                            if (pingResponse.open) {
+                                console.log(`[PING SUCCESS] ${node} is responding to ping.`);
+                            } else {
+                                console.error(`[PING ERROR] ${node} is not responding to ping.`);
+                            }
                         } catch (pingError) {
                             console.error(`[PING ERROR] Failed to ping ${node}:`, pingError.message);
-                            nodeStatus.set(`${node}.timestamp`, Date.now());
-                            nodeStatus.set(`${node}.status`, false);
-                            nodeStatus.set(`${node}.is_vm_online`, false);
                         }
                     }
                 } catch (error) {
                     console.error(`[PTERODACTYL API ERROR] Error checking node status for ${node}:`, error.message);
 
                     try {
-                        await ping.ping(data.IP, 22);
-                        console.log(`[PING SUCCESS] ${node} is responding to ping, likely a Pterodactyl API issue.`);
-                        nodeStatus.set(`${node}.timestamp`, Date.now());
-                        nodeStatus.set(`${node}.status`, true);
-                        nodeStatus.set(`${node}.is_vm_online`, true);
+                        let pingResponse = await ping.ping(data.IP, 22);
+                        if (pingResponse.open) {
+                            console.log(`[PING SUCCESS] ${node} is responding to ping, likely a Pterodactyl API issue.`);
+                        } else {
+                            console.error(`[PING FALLBACK ERROR] ${node} is not responding to ping.`);
+                        }
                     } catch (pingError) {
                         console.error(`[PING FALLBACK ERROR] Failed to ping ${node}:`, pingError.message);
-                        nodeStatus.set(`${node}.timestamp`, Date.now());
-                        nodeStatus.set(`${node}.status`, false);
-                        nodeStatus.set(`${node}.is_vm_online`, false);
                     }
                 }
 
@@ -89,6 +83,7 @@ if (config.Enabled.nodestatsChecker) {
 
                         const serverCount = allocationResponse.data.data.filter(m => m.attributes.assigned === true).length;
                         nodeServers.set(node, { servers: serverCount });
+                        console.log(`[NODE SERVERS] ${node} has ${serverCount} servers.`);
                     } catch (error) {
                         console.error(`[ALLOCATION ERROR] Error fetching server allocation for ${node}:`, error.message);
                     }
