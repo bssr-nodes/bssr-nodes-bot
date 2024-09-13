@@ -109,7 +109,7 @@ module.exports = {
                     option.setName('target')
                         .setDescription('The member whose history you want to view')
                         .setRequired(true)))
-        .addSubCommand(subcommand =>
+        .addSubcommand(subcommand =>
             subcommand
                 .setName('addadmin')
                 .setDescription('Grants admin access to a user\'s Pterodactyl console account.')
