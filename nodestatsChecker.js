@@ -2,6 +2,10 @@ const axios = require("axios");
 const ping = require("ping-tcp-js");
 const chalk = require("chalk");
 
+// Initialize Maps for node status and ping information
+let nodeStatus = new Map();
+let nodePing = new Map();
+
 let pingLocals = {
     EU: config.Ping.EU,
 };
@@ -32,9 +36,9 @@ if (config.Enabled.nodestatsChecker) {
                         }
                     });
 
-                    const nodeStatus = nodeStatusResponse.data.attributes.under_maintenance;
+                    const nodeStatusData = nodeStatusResponse.data.attributes.under_maintenance;
                     
-                    if (nodeStatus === false) {
+                    if (nodeStatusData === false) {
                         console.log(`[NODE STATUS] ${node} is online according to Pterodactyl API`);
                         nodeStatus.set(`${node}.timestamp`, Date.now());
                         nodeStatus.set(`${node}.status`, true);
