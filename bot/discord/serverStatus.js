@@ -1,23 +1,11 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const nstatus = {
     "Public Nodes": [
         {
-            name: "Byte",
-            data: "node1",
-            maxCount: 100,
-        },
-        {
-            name: "Pixel",
-            data: "node2",
-            maxCount: 50,
-        }
-    ],
-    "Private Nodes": [
-        {
             name: "Car",
             data: "car",
-            maxCount: 1000,
+            maxCount: 100,
         },
     ],
 };
@@ -46,10 +34,7 @@ const parse = async () => {
                     continue;
                 }
 
-                let serverUsage = "";
-                if (d.data.toLowerCase().startsWith("node") || d.data.toLowerCase() === "car") {
-                    serverUsage = nodeData && nodeData.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
-                }
+                let serverUsage = nodeData?.servers !== undefined ? `${nodeData.servers} / ${d.maxCount}` : "N/A";
 
                 let statusText = "";
                 if (da.maintenance) {
@@ -64,10 +49,9 @@ const parse = async () => {
 
                 temp.push(`${d.name}: ${statusText}`);
             } catch (error) {
-                if (!timeoutReached) {
-                    clearTimeout(timer);
-                    temp.push(`${d.name}: ❓ No data found`);
-                }
+                clearTimeout(timer);
+                temp.push(`${d.name}: ❓ Error retrieving data`);
+                console.error(`[STATUS ERROR] Error fetching status for ${d.name}:`, error.message);
             }
         }
         toReturn[title] = temp;
