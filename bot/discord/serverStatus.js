@@ -12,9 +12,9 @@ const nstatus = {
     ],
 };
 
-const nodeStatus = new Map(); // Mock for demonstration
-const nodeServers = new Map(); // Mock for demonstration
-const nodePing = new Map(); // Mock for demonstration
+const nodeStatus = new Map();
+const nodeServers = new Map();
+const config = { Nodes: { car: "car.bssr-nodes.com" } };
 
 const parse = async () => {
     let toReturn = {};
@@ -28,10 +28,8 @@ const parse = async () => {
             }, 3000);
 
             try {
-                // Fetching node status
-                let da = await nodeStatus.get(d.data.toLowerCase());
-                let nodeData = await nodeServers.get(d.name.toLowerCase());
-                let pingResult = await nodePing.fetch(d.name.toLowerCase());
+                let da = nodeStatus.get(d.data.toLowerCase());
+                let nodeData = nodeServers.get(d.name.toLowerCase());
 
                 clearTimeout(timer);
                 if (timeoutReached) continue;
@@ -48,18 +46,15 @@ const parse = async () => {
                     statusText = "<a:maintenance:1265630967872229408> Maintenance ~ Returning Soon!";
                 } else if (da.status) {
                     statusText = `🟢 Online (${serverUsage})`;
-                } else if (da.is_vm_online == null) {
-                    // If node status is null, check the Wings daemon status
+                } else {
                     console.log(`[NODE STATUS] ${d.name} is offline according to Pterodactyl API, attempting to ping the server IP...`);
                     try {
-                        await ping.ping(config.Nodes[d.data], 8443); // Ping the Wings daemon on port 8443
-                        statusText = `${da.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390> **System**"} **online** ${serverUsage}`;
+                        await ping.ping(config.Nodes[d.data], 8443); 
+                        statusText = da.is_vm_online ? "<a:loading:1265631230540513363> **Wings** online" : "<:error:1265632865215971390> **System** offline";
                     } catch (pingError) {
                         console.error(`[PING ERROR] ${d.name} Wings daemon is not responding to ping:`, pingError.message);
                         statusText = "<:error:1265632865215971390> **System** **offline**";
                     }
-                } else {
-                    statusText = `${da.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390> **System**"} **offline** ${serverUsage}`;
                 }
 
                 temp.push(`${d.name}: ${statusText}`);
