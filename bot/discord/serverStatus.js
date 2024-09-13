@@ -40,7 +40,7 @@ const parse = async () => {
                 if (da.maintenance) {
                     statusText = "<a:maintenance:1265630967872229408> Maintenance ~ Returning Soon!";
                 } else if (da.status) {
-                    statusText = `🟢 Online ${serverUsage}`;
+                    statusText = `🟢 Online (${serverUsage})`;
                 } else if (da.is_vm_online == null) {
                     statusText = "<:error:1265632865215971390> **Offline**";
                 } else {
