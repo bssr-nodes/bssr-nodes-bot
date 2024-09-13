@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('@discordjs/builders');
 const fs = require('fs');
 const path = require('path');
 
@@ -96,11 +96,7 @@ module.exports = {
                             { name: '1 day', value: '1d' },
                             { name: '3 days', value: '3d' },
                             { name: '1 week', value: '7d' },
-                            { name: '2 weeks', value: '14d' }))
-                .addStringOption(option =>
-                    option.setName('reason')
-                        .setDescription('The reason for the mute.')
-                        .setRequired(false)))
+                            { name: '2 weeks', value: '14d' })))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('history')
@@ -113,7 +109,6 @@ module.exports = {
             subcommand
                 .setName('addadmin')
                 .setDescription('Grants admin access to a user\'s Pterodactyl console account.')
-                .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
                 .addUserOption(option => 
                     option.setName('user')
                         .setDescription('The user you want to grant admin access to')
@@ -124,9 +119,14 @@ module.exports = {
 
         if (fs.existsSync(subcommandPath)) {
             const command = require(subcommandPath);
-            return command.execute(interaction);
+            try {
+                await command.execute(interaction);
+            } catch (error) {
+                console.error(`Error executing command ${subcommand}:`, error);
+                await interaction.reply({ content: 'An error occurred while executing this command.', ephemeral: true });
+            }
+        } else {
+            await interaction.reply({ content: 'Subcommand not found', ephemeral: true });
         }
-
-        await interaction.reply({ content: 'Subcommand not found', ephemeral: true });
     },
 };
