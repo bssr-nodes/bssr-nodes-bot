@@ -4,6 +4,7 @@ const { PermissionFlagsBits, ChannelType, EmbedBuilder } = require('discord.js')
 
 module.exports = {
     async execute(interaction) {
+
         const user = interaction.user;
         const server = interaction.guild;
 
@@ -71,7 +72,7 @@ module.exports = {
                         });
 
                         const embedStaff = new EmbedBuilder()
-                            .setColor("Green")
+                            .setColor('#00FF00')
                             .addFields(
                                 { name: "__**Linked Discord account:**__", value: user.id },
                                 { name: "__**Linked Console account email:**__", value: consoleUser.email },
@@ -99,7 +100,7 @@ module.exports = {
             });
         } else {
             const linkedEmbed = new EmbedBuilder()
-                .setColor("GREEN")
+                .setColor('#00FF00')
                 .addFields(
                     { name: `__**Username**__`, value: userData.fetch(`${user.id}.username`) },
                     { name: `__**Linked Date (YYYY-MM-DD)**__`, value: userData.fetch(`${user.id}.linkDate`) },
@@ -146,7 +147,7 @@ async function handleEmailVerification(messageCollected, channel, user, client) 
                     });
 
                     const embedStaff = new EmbedBuilder()
-                        .setColor("Green")
+                        .setColor('#00FF00')
                         .addFields(
                             { name: "__**Linked Discord account:**__", value: user.id },
                             { name: "__**Linked Console account email:**__", value: consoleUser.attributes.email },
