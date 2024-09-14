@@ -1,198 +1,181 @@
 const axios = require("axios");
 const moment = require("moment");
-const Discord = require("discord.js");
+const { PermissionFlagsBits, ChannelType, EmbedBuilder } = require('discord.js');
 
-exports.run = async (client, message, args) => {
+module.exports = {
+    async execute(interaction) {
+        const user = interaction.user;
+        const server = interaction.guild;
 
-    
-    if (userData.get(message.author.id) == null) {
-        const server = message.guild;
+        if (userData.get(user.id) == null) {
+            let channel = await server.channels.create({
+                name: user.tag,
+                type: ChannelType.GuildText,
+                permissionOverwrites: [
+                    {
+                        id: server.id,
+                        deny: [PermissionFlagsBits.ViewChannel],
+                    },
+                    {
+                        id: user.id,
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+                    },
+                ],
+            }).catch(console.error);
 
-        let channel = await server.channels.create(message.author.tag, {
-            type: 'text',
-            permissionOverwrites: [
-                {
-                    id: message.guild.id,
-                    deny: ['VIEW_CHANNEL'],
-                },
-                {
-                    id: message.author.id,
-                    allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
-                },
-            ],
-        }).catch(console.error);
+            await interaction.reply({ content: `Please check <#${channel.id}> to link your account.`, ephemeral: true });
 
-        message.reply(`Please check <#${channel.id}> to link your account.`);
+            let category = server.channels.cache.find(c => c.id === "1250359312249917501" && c.type === ChannelType.GuildCategory);
+            if (!category) throw new Error("Category channel does not exist");
 
-        let category = server.channels.cache.find((c) => c.id === "1250359312249917501" && c.type === "category");
-        if (!category) throw new Error("Category channel does not exist");
+            await channel.setParent(category.id);
 
-        await channel.setParent(category.id);
-
-        channel.updateOverwrite(message.author, {
-            VIEW_CHANNEL: true,
-            SEND_MESSAGES: true,
-            READ_MESSAGE_HISTORY: true,
-        });
-
-        let msg = await channel.send(message.author, {
-            embed: new Discord.MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setColor(0x36393e)
                 .setDescription("Please enter your console email address or type '1' to link directly")
-                .setFooter(
-                    "You can type 'cancel' to cancel the request \n**This will take a few seconds to find your account.**"
-                ),
-        });
+                .setFooter({ text: "You can type 'cancel' to cancel the request\n**This will take a few seconds to find your account.**" });
 
-        const collector = new Discord.MessageCollector(channel, (m) => m.author.id === message.author.id, {
-            time: 60000,
-            max: 1,
-        });
+            let msg = await channel.send({ embeds: [embed] });
 
-        collector.on("collect", async (messagecollected) => {
-            if (messagecollected.content === "cancel") {
-                return msg.edit("Request to link your account canceled.", null).then(channel.delete());
-            }
+            const filter = m => m.author.id === user.id;
+            const collector = channel.createMessageCollector({ filter, time: 60000, max: 1 });
 
-            if (messagecollected.content === "1") {
-                try {
-                    const response = await axios.get("https://panel.bssr-nodes.com/api/application/users/3", {
-                        headers: {
-                            "Authorization": `Bearer ${config.Pterodactyl.apikey}`,
-                            "Content-Type": "application/json",
-                            "Accept": "Application/vnd.pterodactyl.v1+json",
-                        },
-                    });
+            collector.on("collect", async messageCollected => {
+                if (messageCollected.content === "cancel") {
+                    await channel.send("Request to link your account canceled.");
+                    return setTimeout(() => channel.delete(), 5000);
+                }
 
-                    const consoleUser = response.data.attributes;
+                if (messageCollected.content === "1") {
+                    try {
+                        const response = await axios.get("https://panel.bssr-nodes.com/api/application/users/1", {
+                            headers: {
+                                "Authorization": `Bearer ${config.Pterodactyl.apikey}`,
+                                "Content-Type": "application/json",
+                                "Accept": "Application/vnd.pterodactyl.v1+json",
+                            },
+                        });
 
-                    const timestamp = `${moment().format("HH:mm:ss")}`;
-                    const datestamp = `${moment().format("DD-MM-YYYY")}`;
-                    userData.set(`${message.author.id}`, {
-                        discordID: message.author.id,
-                        consoleID: consoleUser.id,
-                        email: consoleUser.email,
-                        username: consoleUser.username,
+                        const consoleUser = response.data.attributes;
+                        const timestamp = moment().format("HH:mm:ss");
+                        const datestamp = moment().format("DD-MM-YYYY");
+
+                        userData.set(user.id, {
+                            discordID: user.id,
+                            consoleID: consoleUser.id,
+                            email: consoleUser.email,
+                            username: consoleUser.username,
+                            linkTime: timestamp,
+                            linkDate: datestamp,
+                            domains: [],
+                        });
+
+                        const embedStaff = new EmbedBuilder()
+                            .setColor("Green")
+                            .addFields(
+                                { name: "__**Linked Discord account:**__", value: user.id },
+                                { name: "__**Linked Console account email:**__", value: consoleUser.email },
+                                { name: "__**Linked At: (TIME / DATE):**__", value: `${timestamp} / ${datestamp}` },
+                                { name: "__**Linked Console username:**__", value: consoleUser.username },
+                                { name: "__**Linked Console ID:**__", value: consoleUser.id }
+                            );
+
+                        await channel.send("Account linked!");
+                        await client.channels.cache.get("1250044501180026881").send({
+                            content: `<@${user.id}> linked their account. Here's some info: `,
+                            embeds: [embedStaff],
+                        });
+
+                        setTimeout(() => channel.delete(), 5000);
+
+                    } catch (error) {
+                        console.error(error);
+                        await channel.send("An error occurred while trying to link your account. Please try again later.");
+                        setTimeout(() => channel.delete(), 5000);
+                    }
+                } else {
+                    await handleEmailVerification(messageCollected, channel, user, client);
+                }
+            });
+        } else {
+            const linkedEmbed = new EmbedBuilder()
+                .setColor("GREEN")
+                .addFields(
+                    { name: `__**Username**__`, value: userData.fetch(`${user.id}.username`) },
+                    { name: `__**Linked Date (YYYY-MM-DD)**__`, value: userData.fetch(`${user.id}.linkDate`) },
+                    { name: `__**Linked Time**__`, value: userData.fetch(`${user.id}.linkTime`) }
+                );
+
+            await interaction.reply({ content: "This account is already linked!", embeds: [linkedEmbed], ephemeral: true });
+        }
+    },
+};
+
+async function handleEmailVerification(messageCollected, channel, user, client) {
+    setTimeout(async () => {
+        const users = await getUsersFromAPI();
+        const consoleUser = users.find(usr => usr.attributes.email === messageCollected.content);
+
+        if (!consoleUser) {
+            await channel.send("I can't find a user with that account! \nRemoving channel!");
+            setTimeout(() => channel.delete(), 5000);
+        } else {
+            const code = generateCode(10);
+
+            await channel.send(`Please check the email account for a verification code to complete linking. You have 2 mins. The code is ${code}`);
+
+            const codeCollector = channel.createMessageCollector({
+                filter: m => m.author.id === user.id,
+                time: 120000,
+                max: 2
+            });
+
+            codeCollector.on("collect", async message => {
+                if (message.content === code) {
+                    const timestamp = moment().format("HH:mm:ss");
+                    const datestamp = moment().format("DD-MM-YYYY");
+
+                    userData.set(user.id, {
+                        discordID: user.id,
+                        consoleID: consoleUser.attributes.id,
+                        email: consoleUser.attributes.email,
+                        username: consoleUser.attributes.username,
                         linkTime: timestamp,
                         linkDate: datestamp,
                         domains: [],
                     });
 
-                    let embedstaff = new Discord.MessageEmbed()
+                    const embedStaff = new EmbedBuilder()
                         .setColor("Green")
-                        .addField("__**Linked Discord account:**__", message.author.id)
-                        .addField("__**Linked Console account email:**__", consoleUser.email)
-                        .addField("__**Linked At: (TIME / DATE)**__", timestamp + " / " + datestamp)
-                        .addField("__**Linked Console username:**__", consoleUser.username)
-                        .addField("__**Linked Console ID:**__", consoleUser.id);
+                        .addFields(
+                            { name: "__**Linked Discord account:**__", value: user.id },
+                            { name: "__**Linked Console account email:**__", value: consoleUser.attributes.email },
+                            { name: "__**Linked At: (TIME / DATE):**__", value: `${timestamp} / ${datestamp}` },
+                            { name: "__**Linked Console username:**__", value: consoleUser.attributes.username },
+                            { name: "__**Linked Console ID:**__", value: consoleUser.attributes.id }
+                        );
 
-                    channel.send("Account linked!").then(
-                        client.channels.cache
-                            .get("1250044501180026881")
-                            .send(
-                                `<@${message.author.id}> linked their account. Here's some info: `,
-                                embedstaff
-                            ),
-                        setTimeout(() => {
-                            channel.delete();
-                        }, 5000)
-                    );
+                    await channel.send("Account linked!");
+                    await client.channels.cache.get("1250044501180026881").send({
+                        content: `<@${user.id}> linked their account. Here's some info: `,
+                        embeds: [embedStaff],
+                    });
 
-                } catch (error) {
-                    console.error(error);
-                    channel.send("An error occurred while trying to link your account. Please try again later.");
-                    setTimeout(() => {
-                        channel.delete();
-                    }, 5000);
+                    setTimeout(() => channel.delete(), 5000);
+                } else {
+                    await channel.send("Code is incorrect. Linking cancelled!\n\nRemoving channel!");
+                    setTimeout(() => channel.delete(), 2000);
                 }
-            } else {
-                // Existing code for email verification
-                setTimeout(async () => {
-                    const consoleUser = users.find((usr) =>
-                        usr.attributes ? usr.attributes.email === messagecollected.content : false
-                    );
+            });
+        }
+    }, 10000);
+}
 
-                    if (!consoleUser) {
-                        channel.send("I can't find a user with that account! \nRemoving channel!");
-                        setTimeout(() => {
-                            channel.delete();
-                        }, 5000);
-                    } else {
-                        function codegen(length) {
-                            let result = "";
-                            let characters = "23456789";
-                            let charactersLength = characters.length;
-                            for (let i = 0; i < length; i++) {
-                                result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                            }
-                            return result;
-                        }
-
-                        const code = codegen(10);
-
-                        channel.send(
-                            `Please check the email account for a verification code to complete linking. You have 2mins. The code is ${code}`
-                        );
-
-                        const codeCollector = new Discord.MessageCollector(
-                            channel,
-                            (m) => m.author.id === message.author.id,
-                            {
-                                time: 120000,
-                                max: 2,
-                            }
-                        );
-
-                        codeCollector.on("collect", (message) => {
-                            if (message.content === code) {
-                                const timestamp = `${moment().format("HH:mm:ss")}`;
-                                const datestamp = `${moment().format("DD-MM-YYYY")}`;
-                                userData.set(`${message.author.id}`, {
-                                    discordID: message.author.id,
-                                    consoleID: consoleUser.attributes.id,
-                                    email: consoleUser.attributes.email,
-                                    username: consoleUser.attributes.username,
-                                    linkTime: timestamp,
-                                    linkDate: datestamp,
-                                    domains: [],
-                                });
-
-                                let embedstaff = new Discord.MessageEmbed()
-                                    .setColor("Green")
-                                    .addField("__**Linked Discord account:**__", message.author.id)
-                                    .addField("__**Linked Console account email:**__", consoleUser.attributes.email)
-                                    .addField("__**Linked At: (TIME / DATE)**__", timestamp + " / " + datestamp)
-                                    .addField("__**Linked Console username:**__", consoleUser.attributes.username)
-                                    .addField("__**Linked Console ID:**__", consoleUser.attributes.id);
-
-                                channel.send("Account linked!").then(
-                                    client.channels.cache
-                                        .get("1250044501180026881")
-                                        .send(
-                                            `<@${message.author.id}> linked their account. Here's some info: `,
-                                            embedstaff
-                                        ),
-                                    setTimeout(() => {
-                                        channel.delete();
-                                    }, 5000)
-                                );
-                            } else {
-                                channel.send("Code is incorrect. Linking cancelled!\n\nRemoving channel!");
-                                setTimeout(() => {
-                                    channel.delete();
-                                }, 2000);
-                            }
-                        });
-                    }
-                }, 10000);
-            }
-        });
-    } else {
-        let embed = new Discord.MessageEmbed()
-            .setColor(`GREEN`)
-            .addField(`__**Username**__`, userData.fetch(message.author.id + ".username"))
-            .addField(`__**Linked Date (YYYY-MM-DD)**__`, userData.fetch(message.author.id + ".linkDate"))
-            .addField(`__**Linked Time**__`, userData.fetch(message.author.id + ".linkTime"));
-        await message.reply("This account is linked!", embed);
+function generateCode(length) {
+    const characters = "23456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
-};
+    return result;
+}

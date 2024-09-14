@@ -169,23 +169,23 @@ client.on('interactionCreate', async interaction => {
 // Bot login
 client.login(config.DiscordBot.Token);
 
-//setInterval(async () => {
-//    users.length = 0;
-//    axios({
-//        url: "https://panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
-//        method: "GET",
-//        followRedirect: true,
-//        maxRedirects: 5,
-//        headers: {
-//            Authorization: "Bearer " + config.Pterodactyl.apikey,
-//            "Content-Type": "application/json",
-//           Accept: "Application/vnd.pterodactyl.v1+json",
-//        },
-//    })
-//        .then((resources) => {
-//            users.push(...resources.data.data);
-//        })
-//        .catch((err) => {
-//            console.error(err);
-//        });
-//}, 10 * 60 * 1000);
+setInterval(async () => {
+    users.length = 0;
+    axios({
+        url: "https://panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
+        method: "GET",
+        followRedirect: true,
+        maxRedirects: 5,
+        headers: {
+            Authorization: "Bearer " + config.Pterodactyl.apikey,
+            "Content-Type": "application/json",
+           Accept: "Application/vnd.pterodactyl.v1+json",
+        },
+    })
+        .then((resources) => {
+            users.push(...resources.data.data);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}, 10 * 60 * 1000);
