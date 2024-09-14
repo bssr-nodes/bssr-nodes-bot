@@ -21,7 +21,11 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('unlink')
-                .setDescription('Unlink your panel account')),
+                .setDescription('Unlink your panel account'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('link')
+                .setDescription('Link your panel account')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'user', `${subcommand}.js`);
