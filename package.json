@@ -1,21 +1,21 @@
 {
-  "name": "hostingstats",
+  "name": "bssr-nodes-bot",
   "version": "1.0.0",
-  "description": "Main bot for DanBot Hosting",
+  "description": "Main bot for BSSR Nodes.",
   "main": "index.js",
   "scripts": {
     "start": "npm install && node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DanBotHosting/DanBotHostingStats.git"
+    "url": "git+https://github.com/bssr-nodes/bssr-nodes-bot.git"
   },
   "author": "DanBot Hosting LTD",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DanBotHosting/DanBotHostingStats/issues"
+    "url": "https://github.com/bssr-nodes/bssr-nodes-bot/issues"
   },
-  "homepage": "https://github.com/DanBotHosting/DanBotHostingStats#readme",
+  "homepage": "https://github.com/bssr-nodes/bssr-nodes-bot#readme",
   "dependencies": {
     "@discordjs/rest": "^2.3.0",
     "ansi-to-html": "latest",
