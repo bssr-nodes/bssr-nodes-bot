@@ -15,5 +15,5 @@ exports.run = async (client, message, args) => {
             config.DiscordBot.Prefix +
             "user premium` | Check your premium server limit"
     );
-    await message.reply(embed);
+    await interaction.reply(embed);
 };

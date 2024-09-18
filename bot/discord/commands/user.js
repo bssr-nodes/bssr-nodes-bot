@@ -25,7 +25,19 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('link')
-                .setDescription('Link your panel account')),
+                .setDescription('Link your panel account'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('help')
+                .setDescription('List all the user commands'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('invites')
+                .setDescription('Check how many users someone has invited')
+                .addUserOption(option =>
+                    option.setName('user')
+                        .setDescription('The user to check invites for')
+                        .setRequired(false))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'user', `${subcommand}.js`);

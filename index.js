@@ -135,20 +135,22 @@ loadCommands(baseDirectory);
 // Register slash commands
 client.once('ready', async () => {
     try {
-        console.log('Started refreshing application (/) commands.');
+        console.log('Started refreshing guild (/) commands.');
 
         const rest = new REST({ version: '10' }).setToken(config.DiscordBot.Token);
 
-        await rest.put(Routes.applicationCommands(client.user.id), {
-            body: commands,
-        });
+        await rest.put(
+            Routes.applicationGuildCommands(client.user.id, config.DiscordBot.mainGuild),
+            { body: commands }
+        );
 
-        console.log('Successfully reloaded application (/) commands.');
+        console.log('Successfully reloaded guild (/) commands.');
     } catch (error) {
-        console.error('Error while registering commands:', error);
+        console.error('Error while registering guild commands:', error);
     }
     console.log(`${client.user.tag} is logged in!`);
 });
+
 
 // Command handling
 client.on('interactionCreate', async interaction => {

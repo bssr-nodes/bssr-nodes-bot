@@ -1,23 +1,26 @@
-exports.run = async (client, message, args) => {
-    let targetUser = null;
-    let isAnotherUserLookup = false;
-    if (message.mentions.members.first() != null) {
-        targetUser = message.mentions.members.first().user;
-        isAnotherUserLookup = true;
-    } else targetUser = message.author;
+module.exports = {
+    async execute(interaction) {
+        const targetUser = interaction.options.getUser('user') || interaction.user;
+        const isAnotherUserLookup = !!interaction.options.getUser('user');
 
-    message.guild
-        .fetchInvites()
-        .then((invites) => {
-            const userInvites = invites.array().filter((o) => o.inviter.id === targetUser.id);
-            var userInviteCount = 0;
-            for (var i = 0; i < userInvites.length; i++) {
-                var invite = userInvites[i];
-                userInviteCount += invite["uses"];
+        try {
+            const invites = await interaction.guild.invites.fetch();
+
+            const userInvites = invites.filter(invite => invite.inviter && invite.inviter.id === targetUser.id);
+            let userInviteCount = 0;
+
+            userInvites.forEach(invite => {
+                userInviteCount += invite.uses;
+            });
+
+            if (isAnotherUserLookup) {
+                await interaction.reply(`User \`${targetUser.username}\` has invited ${userInviteCount} users.`);
+            } else {
+                await interaction.reply(`You have invited ${userInviteCount} users to this server.`);
             }
-            if (isAnotherUserLookup)
-                message.reply(`User \`_${targetUser.username}_\` has invited ${userInviteCount} users`);
-            else message.reply(`You have invited ${userInviteCount} users to this server. `);
-        })
-        .catch(console.error);
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'There was an error while fetching invites.', ephemeral: true });
+        }
+    },
 };
