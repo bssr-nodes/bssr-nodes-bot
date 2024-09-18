@@ -4,6 +4,7 @@ const { PermissionFlagsBits, ChannelType, EmbedBuilder } = require('discord.js')
 
 module.exports = {
     async execute(interaction) {
+        await interaction.reply({ content: 'Account linking is disabled.', ephemeral: true });
 
         const user = interaction.user;
         const server = interaction.guild;
