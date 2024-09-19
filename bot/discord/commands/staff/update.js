@@ -4,10 +4,6 @@ const cap = require('../../util/cap');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('gitpull')
-        .setDescription('Pulls updates from the GitHub repository.'),
-
     async execute(interaction) {
         if (!interaction.member.roles.cache.some(r => r.id === '1250361260462309430')) {
             return interaction.reply({ content: 'You do not have the necessary permissions to use this command.', ephemeral: true });
