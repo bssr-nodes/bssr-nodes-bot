@@ -1,28 +1,26 @@
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const humanizeDuration = require('humanize-duration');
 
 module.exports = {
-    data: {
-        name: 'uptime',
-        description: 'Displays bot uptime obviously',
-    },
+    data: new SlashCommandBuilder()
+        .setName('uptime')
+        .setDescription('Displays bot uptime'),
     async execute(interaction) {
         try {
-            // Get the bot uptime and convert it to a human-readable format
             const uptime = humanizeDuration(interaction.client.uptime, { round: true });
 
-            // Get the bot's ready timestamp
             let myDate = new Date(interaction.client.readyTimestamp);
 
-            // Create an embed message
             const embed = new EmbedBuilder()
-                .addField(':white_check_mark: Uptime:', `**${uptime}**`, true)
-                .addField('Memory usage:', `${Math.trunc(process.memoryUsage().heapUsed / 1024 / 1000)}mb`, true)
-                .addField('API latency:', `${interaction.client.ws.ping}ms`, true)
-                .setFooter(`Ready Timestamp: ${myDate.toString()}`)
-                .setColor('GREEN');
+                .setTitle(':white_check_mark: Bot Uptime')
+                .addFields(
+                    { name: 'Uptime:', value: `**${uptime}**`, inline: true },
+                    { name: 'Memory usage:', value: `${Math.trunc(process.memoryUsage().heapUsed / 1024 / 1000)}mb`, inline: true },
+                    { name: 'API latency:', value: `${interaction.client.ws.ping}ms`, inline: true }
+                )
+                .setFooter({ text: `Ready Since: ${myDate.toUTCString()}` })
+                .setColor('Green');
 
-            // Send the embed as a response
             await interaction.reply({ embeds: [embed] });
         } catch (error) {
             console.error('Error executing uptime command:', error);
