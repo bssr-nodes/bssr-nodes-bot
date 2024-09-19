@@ -10,14 +10,18 @@ jobs:
   analyze:
     name: "Analyze"
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Setup CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: javascript,typescript
+
       - name: Build
         run: npm install && node index.js
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
