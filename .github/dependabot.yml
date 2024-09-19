@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "02:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "fix(deps)"
+    open-pull-requests-limit: 5
+
+    allow:
+      - dependency-type: "direct"
+
+    labels:
+      - "dependencies"
+      - "automated-update"
+
+    assignees:
+      - "ninsaccplayzyt"
+      
+    automerge: 
+      enabled: true
+      commit-message:
+        prefix: "update(deps)"
