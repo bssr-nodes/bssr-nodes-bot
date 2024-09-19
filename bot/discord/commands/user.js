@@ -40,7 +40,7 @@ module.exports = {
                         .setRequired(false)))
         .addSubcommand(subcommand => 
             subcommand
-                .setName('help')
+                .setName('password')
                 .setDescription('Reset your console account password linked with your Discord account')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
