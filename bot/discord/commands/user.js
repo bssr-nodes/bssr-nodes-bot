@@ -38,7 +38,7 @@ module.exports = {
                     option.setName('user')
                         .setDescription('The user to check invites for')
                         .setRequired(false)))
-        .addSubcommand(subcommands => 
+        .addSubcommand(subcommand => 
             subcommand
                 .setName('help')
                 .setDescription('Reset your console account password linked with your Discord account')),
