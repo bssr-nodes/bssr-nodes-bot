@@ -37,7 +37,11 @@ module.exports = {
                 .addUserOption(option =>
                     option.setName('user')
                         .setDescription('The user to check invites for')
-                        .setRequired(false))),
+                        .setRequired(false)))
+        .addSubcommand(subcommands => 
+            subcommand
+                .setName('help')
+                .setDescription('Reset your console account password linked with your Discord account')),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'user', `${subcommand}.js`);
