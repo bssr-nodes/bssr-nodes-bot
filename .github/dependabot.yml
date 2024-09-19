@@ -19,8 +19,3 @@ updates:
 
     assignees:
       - "ninsaccplayzyt"
-      
-    automerge: 
-      enabled: true
-      commit-message:
-        prefix: "update(deps)"
