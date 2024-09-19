@@ -20,7 +20,7 @@
 		"@discordjs/rest": "^2.3.0",
 		"ansi-to-html": "latest",
 		"axios": "^1.4.0",
-		"better-sqlite3": "^8.5.0",
+		"better-sqlite3": "^11.3.0",
 		"chalk": "^3.0.0",
 		"discord-api-types": "^0.37.92",
 		"discord.js": "^14.16.2",
