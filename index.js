@@ -185,7 +185,7 @@ client.on('interactionCreate', async interaction => {
 // Bot login
 client.login(config.DiscordBot.Token);
 
-setInterval(async () => {
+//setInterval(async () => {
     users.length = 0;
     axios({
         url: "https://panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
@@ -204,4 +204,4 @@ setInterval(async () => {
         .catch((err) => {
             console.error(err);
         });
-}, 10 * 60 * 1000);
+//}, 10 * 60 * 1000);
