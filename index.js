@@ -132,19 +132,33 @@ function loadCommands(directory) {
 const baseDirectory = path.resolve('./bot/discord/commands');
 loadCommands(baseDirectory);
 
-// Register slash commands
+// Register slash commands for a specific guild
 client.once('ready', async () => {
     try {
         console.log('Started refreshing guild (/) commands.');
 
         const rest = new REST({ version: '10' }).setToken(config.DiscordBot.Token);
+        const guild = client.guilds.cache.get(config.DiscordBot.mainGuild);
 
-        await rest.put(
-            Routes.applicationGuildCommands(client.user.id, config.DiscordBot.mainGuild),
-            { body: commands }
+        if (!guild) {
+            console.error('Guild not found');
+            return;
+        }
+
+        // Fetch all existing commands and delete them
+        const existingCommands = await rest.get(Routes.applicationCommands(client.user.id));
+        const deletePromises = existingCommands.map(cmd =>
+            rest.delete(`${Routes.applicationCommands(client.user.id)}/${cmd.id}`)
         );
 
-        console.log('Successfully reloaded guild (/) commands.');
+        await Promise.all(deletePromises);
+
+        // Register new commands
+        await rest.put(Routes.applicationGuildCommands(client.user.id, config.DiscordBot.mainGuild), {
+            body: commands,
+        });
+
+        console.log('Successfully reloaded application (/) commands for the guild:', config.DiscordBot.mainGuild);
     } catch (error) {
         console.error('Error while registering guild commands:', error);
     }
