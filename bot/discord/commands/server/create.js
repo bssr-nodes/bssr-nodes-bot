@@ -7,6 +7,15 @@ module.exports = {
         const serverName = interaction.options.getString('name') || 'Untitled Server (settings -> server name)';
         const type = interaction.options.getString('type')?.toLowerCase();
 
+        const consoleID = userData.get(interaction.user.id);
+
+        if (!consoleID) {
+            return interaction.reply({
+                content: `Oh no, it seems you do not have an account linked to your Discord ID.\nIf you haven't made an account yet, use \`/user new\`. If you already have an account, link it using \`/user link\`.`,
+                ephemeral: true
+            });
+        }
+
         const helpEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setDescription(
@@ -46,15 +55,6 @@ module.exports = {
             bun: serverCreateSettings.createParams(serverName, consoleID.consoleID).bun,
         };
 
-        const consoleID = userData.get(interaction.user.id);
-
-        if (!consoleID) {
-            return interaction.reply({
-                content: `Oh no, it seems you do not have an account linked to your Discord ID.\nIf you haven't made an account yet, use \`/user new\`. If you already have an account, link it using \`/user link\`.`,
-                ephemeral: true
-            });
-        }
-
         if (subcommand === 'list') {
             return interaction.reply({ embeds: [helpEmbed] });
         }
@@ -91,7 +91,7 @@ module.exports = {
                 } else if (error.message.includes('429')) {
                     embed.addFields({
                         name: '__**Failed to create a new server**__',
-                        value: 'Uh oh, This shouldn\'t happen, Try again in a minute or two.'
+                        value: 'Uh oh, this shouldn\'t happen. Try again in a minute or two.'
                     });
                 } else {
                     embed.addFields({
