@@ -16,7 +16,7 @@ module.exports = {
                         .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('servers')
+                .setName('count')
                 .setDescription('Displays the user\'s server count')
                     .addUserOption(option =>
                         option.setName('user')
@@ -31,7 +31,27 @@ module.exports = {
                             .setRequired(false))
                             .addStringOption(option =>
                                 option.setName('name')
-                                    .setDescription('The name of the server (optional)'))),
+                                    .setDescription('The name of the server (optional)')))
+        .addSubcommand(subcommand =>
+            subcommand
+               .setName('delete')
+                .setDescription('Deletes a server by ID')
+                .addStringOption(option =>
+                    option.setName('serverid')
+                        .setDescription('The ID of the server you want to delete')
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('help')
+                .setDescription('Displays a list of server-related commands.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('list')
+                .setDescription('Lists all servers associated with the user')
+                .addUserOption(option =>
+                    option.setName('target')
+                        .setDescription('Optionally view another user\'s servers')
+                        .setRequired(false))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'server', `${subcommand}.js`);
