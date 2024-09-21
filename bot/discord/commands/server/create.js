@@ -8,7 +8,7 @@ module.exports = {
         const type = interaction.options.getString('type')?.toLowerCase();
 
         const helpEmbed = new EmbedBuilder()
-            .setColor('RED')
+            .setColor('#FF0000')
             .setDescription(
                 `List of servers: (use /server create <type> <name>)\n\n*Please note that some nodes might have trouble connecting, which may lead to errors.*\n`
             )
@@ -67,7 +67,7 @@ module.exports = {
             try {
                 const response = await serverCreateSettings.createServer(types[type]);
                 const embed = new EmbedBuilder()
-                    .setColor('GREEN')
+                    .setColor('#008000')
                     .addFields(
                         { name: '__**Status:**__', value: response.statusText },
                         { name: '__**Created for user ID:**__', value: consoleID.consoleID },
@@ -76,7 +76,7 @@ module.exports = {
                     );
                 return interaction.reply({ embeds: [embed] });
             } catch (error) {
-                const embed = new EmbedBuilder().setColor('RED');
+                const embed = new EmbedBuilder().setColor('#FF0000');
 
                 if (error.message.includes('400')) {
                     embed.addFields({

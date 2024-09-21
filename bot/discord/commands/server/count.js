@@ -31,7 +31,7 @@ module.exports = {
             // Create an embed with server count details
             const embed = new EmbedBuilder()
                 .setDescription(`${freeServers} Server count${freeServers === 1 ? '' : 's'}`)
-                .setColor('Blue');
+                .setColor('#0000FF');
 
             // Reply with the embed
             await interaction.reply({ embeds: [embed] });
