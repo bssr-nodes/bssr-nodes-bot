@@ -1,19 +1,13 @@
-exports.run = async (client, message, args) => {
-    let embed = new Discord.MessageEmbed().addField(
-        "__**Commands**__",
-        "Create a server: `" +
-            config.DiscordBot.Prefix +
-            "server create <type> <servername>` \nCreate a premium server: `" +
-            config.DiscordBot.Prefix +
-            "server create list` \nServer Redeem: `" +
-            config.DiscordBot.Prefix +
-            "server redeem <code>` \nLink Domain: `" +
-            config.DiscordBot.Prefix +
-            "server delete <serveridhere>` \n List servers: `" +
-            config.DiscordBot.Prefix +
-            "server list` \n See server count: `" +
-            config.DiscordBot.Prefix +
-            "server count` \n Get Informations about a server type: `"
-    );
-    await message.reply(embed);
+const { EmbedBuilder } = require('discord.js');
+
+module.exports = {
+    async execute(interaction) {
+        const embed = new EmbedBuilder()
+            .setTitle("Server Commands")
+            .addFields(
+                { name: "__**Commands**__", value: `Create a server: \`/server create <type> <servername>\`\nCreate a premium server: \`/server create list\`\nServer Redeem: \`/server redeem <code>\`\nLDelete server: \`/server delete <serverid>\`\nList servers: \`/server list\`\nSee server count: \`/server count\`\nGet Information about a server type: \`/server info <type>\`` }
+            );
+
+        await interaction.reply({ embeds: [embed] });
+    },
 };

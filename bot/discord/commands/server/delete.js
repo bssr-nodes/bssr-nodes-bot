@@ -1,121 +1,112 @@
 const axios = require("axios");
 const humanizeDuration = require("humanize-duration");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } = require('discord.js');
 
-exports.run = async (client, message, args) => {
-    if (client.cooldown[message.author.id] == null) {
-        client.cooldown[message.author.id] = {
-            nCreate: null,
-            pCreate: null,
-            delete: null,
-        };
-    }
+module.exports = {
+    async execute(interaction) {
+        const serverID = interaction.options.getString('serverid');
+        const userId = interaction.user.id;
 
-    if (client.cooldown[message.author.id].delete > Date.now()) {
-        message.reply(
-            `You're currently on cooldown, please wait ${humanizeDuration(
-                client.cooldown[message.author.id].delete - Date.now(),
-                { round: true }
-            )}`
-        );
-        return;
-    }
+        if (!client.cooldown[userId]) {
+            client.cooldown[userId] = { delete: null };
+        }
 
-    client.cooldown[message.author.id].delete = Date.now() + 3 * 1000;
+        if (client.cooldown[userId].delete && client.cooldown[userId].delete > Date.now()) {
+            return interaction.reply({
+                content: `You're currently on cooldown, please wait ${humanizeDuration(client.cooldown[userId].delete - Date.now(), { round: true })}`,
+                ephemeral: true,
+            });
+        }
 
-    if (!args[1]) {
-        message.reply("Command format: `" + config.DiscordBot.Prefix + "server delete <serverid>`");
-    } else {
-        if (args[1].match(/[0-9a-z]+/i) == null) return message.reply("Please only use English characters.");
+        client.cooldown[userId].delete = Date.now() + 3 * 1000;
 
-        args[1] = args[1].replace("https://panel.bssr-nodes.com/server/", "").match(/[0-9a-z]+/i)[0];
+        if (!serverID.match(/[0-9a-z]+/i)) {
+            return interaction.reply({ content: 'Please only use English characters.', ephemeral: true });
+        }
 
-        message.reply("Please wait while the server `" + args[1] + "` is checked.").then((msg) => {
-            axios({
-                url:
-                    "https://panel.bssr-nodes.com" +
-                    "/api/application/users/" +
-                    userData.get(message.author.id).consoleID +
-                    "?include=servers",
-                method: "GET",
-                followRedirect: true,
-                maxRedirects: 5,
-                headers: {
-                    Authorization: "Bearer " + config.Pterodactyl.apikey,
-                    "Content-Type": "application/json",
-                    Accept: "Application/vnd.pterodactyl.v1+json",
-                },
-            }).then(async (response) => {
-                const preoutput = response.data.attributes.relationships.servers.data;
-                const output = preoutput.find((srv) => (srv.attributes ? srv.attributes.identifier == args[1] : false));
+        const cleanedServerID = serverID.replace('https://panel.bssr-nodes.com/server/', '').match(/[0-9a-z]+/i)[0];
 
-                if (!output) {
-                    msg.edit("I cannot find that server.");
-                } else {
-                    if (output.attributes.user === userData.get(message.author.id).consoleID) {
-                        msg.edit(
-                            "Are you sure you want to delete `" +
-                                output.attributes.name.split("@").join("@​") + // Uses an invisible character (U+200B) after the @
-                                "`?\nPlease type `confirm` to delete this server. You have 1 minute until this prompt will expire.\n\n**You can not restore the server once it has been deleted and/or its files**"
-                        );
+        await interaction.reply(`Please wait while the server \`${cleanedServerID}\` is checked.`);
 
-                        const collector = await message.channel.createMessageCollector(
-                            (m) => m.author.id === message.author.id,
-                            {
-                                time: 60000,
-                                max: 2,
+        axios({
+            url: `https://panel.bssr-nodes.com/api/application/users/${userData.get(userId).consoleID}?include=servers`,
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${config.Pterodactyl.apikey}`,
+                'Content-Type': 'application/json',
+                Accept: 'Application/vnd.pterodactyl.v1+json',
+            },
+        })
+        .then(async (response) => {
+            const servers = response.data.attributes.relationships.servers.data;
+            const server = servers.find(srv => srv.attributes && srv.attributes.identifier === cleanedServerID);
+
+            if (!server) {
+                return interaction.editReply("I cannot find that server.");
+            }
+
+            if (server.attributes.user === userData.get(userId).consoleID) {
+                const row = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('confirm-delete')
+                            .setLabel('Confirm')
+                            .setStyle(ButtonStyle.Danger),
+                        new ButtonBuilder()
+                            .setCustomId('cancel-delete')
+                            .setLabel('Cancel')
+                            .setStyle(ButtonStyle.Secondary)
+                    );
+
+                await interaction.editReply({
+                    content: `Are you sure you want to delete \`${server.attributes.name.split("@").join("@​")}\`?\n**This action is irreversible!**`,
+                    components: [row],
+                });
+
+                const filter = (i) => i.user.id === interaction.user.id;
+                const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60000 });
+
+                collector.on('collect', async (buttonInteraction) => {
+                    if (buttonInteraction.customId === 'confirm-delete') {
+                        await buttonInteraction.update({ content: 'Working...', components: [] });
+
+                        axios({
+                            url: `${config.Pterodactyl.hosturl}/api/application/servers/${server.attributes.id}/force`,
+                            method: 'DELETE',
+                            headers: {
+                                Authorization: `Bearer ${config.Pterodactyl.apikey}`,
+                                'Content-Type': 'application/json',
+                                Accept: 'Application/vnd.pterodactyl.v1+json',
+                            },
+                        })
+                        .then(() => {
+                            buttonInteraction.editReply('Server deleted!');
+
+                            if ([31, 34, 33, 45].includes(server.attributes.node)) {
+                                userPrem.set(`${userId}.used`, userPrem.fetch(userId).used - 1);
                             }
-                        );
-                        collector.on("collect", (message) => {
-                            if (message.content === "confirm") {
-                                message.delete();
-                                msg.edit("Working...");
-                                axios({
-                                    url:
-                                        config.Pterodactyl.hosturl +
-                                        "/api/application/servers/" +
-                                        output.attributes.id +
-                                        "/force",
-                                    method: "DELETE",
-                                    followRedirect: true,
-                                    maxRedirects: 5,
-                                    headers: {
-                                        Authorization: "Bearer " + config.Pterodactyl.apikey,
-                                        "Content-Type": "application/json",
-                                        Accept: "Application/vnd.pterodactyl.v1+json",
-                                    },
-                                })
-                                    .then((response) => {
-                                        msg.edit("Server deleted!");
 
-                                        if (
-                                            output.attributes.node === 31 || // Dono-02
-                                            output.attributes.node === 34 || // Dono-01
-                                            output.attributes.node === 33 || // Dono-03
-                                            output.attributes.node === 45 // Dono-04
-                                        )
-                                            userPrem.set(
-                                                message.author.id + ".used",
-                                                userPrem.fetch(message.author.id).used - 1
-                                            );
-
-                                        collector.stop();
-                                    })
-                                    .catch((err) => {
-                                        msg.edit("An error occurred with the Panel. Please try again later.");
-                                        collector.stop();
-                                    });
-                            } else {
-                                message.delete();
-                                msg.edit("Request cancelled!");
-                                collector.stop();
-                            }
+                            collector.stop();
+                        })
+                        .catch(() => {
+                            buttonInteraction.editReply('An error occurred with the Panel. Please try again later.');
+                            collector.stop();
                         });
-                    } else {
-                        msg.edit("You do not own that server so you cannot delete it.");
+                    } else if (buttonInteraction.customId === 'cancel-delete') {
+                        await buttonInteraction.update({ content: 'Server deletion cancelled!', components: [] });
+                        collector.stop();
                     }
-                }
-            })
-            .catch(() => msg.edit("An error occurred while fetching that server."))
-        });
-    }
+                });
+
+                collector.on('end', () => {
+                    if (!collector.ended) {
+                        interaction.editReply({ content: 'The confirmation timed out.', components: [] });
+                    }
+                });
+            } else {
+                return interaction.editReply("You do not own that server so you cannot delete it.");
+            }
+        })
+        .catch(() => interaction.editReply("An error occurred while fetching that server."));
+    },
 };

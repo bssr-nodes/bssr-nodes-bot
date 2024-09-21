@@ -13,7 +13,25 @@ module.exports = {
                 .addStringOption(option =>
                     option.setName('code')
                         .setDescription('The code to redeem')
-                        .setRequired(true))),
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('servers')
+                .setDescription('Displays the user\'s server count')
+                    .addUserOption(option =>
+                        option.setName('user')
+                            .setDescription('The user to check (defaults to the command invoker)')))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('create')
+                .setDescription('Create a new server')
+                    .addStringOption(option =>
+                        option.setName('type')
+                            .setDescription('The type of server to create')
+                            .setRequired(false))
+                            .addStringOption(option =>
+                                option.setName('name')
+                                    .setDescription('The name of the server (optional)'))),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const subcommandPath = path.join(__dirname, 'server', `${subcommand}.js`);
