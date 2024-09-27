@@ -21,21 +21,21 @@ global.transport = nodemailer.createTransport({
 require("./nodestatsChecker");
 
 // Discord Bot
-const db = require("quick.db");
+let db = require("quick.db");
 const { Client, Collection, IntentsBitField, Partials, REST, Routes } = require("discord.js");
 global.Discord = require("discord.js");
 
 global.moment = require("moment");
-global.userData = db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
-global.settings = db.table("settings"); // Admin settings
-global.webSettings = db.table("webSettings"); // Web settings (forgot what this is even for)
-global.domains = db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
-global.nodeStatus = db.table("nodeStatus"); // Node status. Online or offline nodes
-global.userPrem = db.table("userPrem"); // Premium user data, Donated, Boosted, Total
-global.nodeServers = db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
-global.codes = db.table("redeemCodes"); // Premium server redeem codes...
-global.nodePing = db.table("nodePing"); // Node ping response time
-global.moderationHistory = db.table("moderationHistory"); // Moderation history, duh.
+global.userData = new db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
+global.settings = new db.table("settings"); // Admin settings
+global.webSettings = new db.table("webSettings"); // Web settings (forgot what this is even for)
+global.domains = new db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
+global.nodeStatus = new db.table("nodeStatus"); // Node status. Online or offline nodes
+global.userPrem = new db.table("userPrem"); // Premium user data, Donated, Boosted, Total
+global.nodeServers = new db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
+global.codes = new db.table("redeemCodes"); // Premium server redeem codes...
+global.nodePing = new db.table("nodePing"); // Node ping response time
+global.moderationHistory = new db.table("moderationHistory"); // Moderation history, duh.
 
 global.client = new Client({
     intents: [
