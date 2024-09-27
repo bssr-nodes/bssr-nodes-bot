@@ -15,7 +15,7 @@ module.exports = async (client) => {
     client.cooldown = {};
 
     setInterval(() => {
-        exec(`git pull`, (error, stdout) => {
+        exec(`git pull origin main`, (error, stdout) => {
             let response = error || stdout;
             if (!error) {
                 if (!response.includes("Already up to date.")) {
