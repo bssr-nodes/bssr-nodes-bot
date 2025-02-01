@@ -10,9 +10,10 @@ function createServer(ServerName, UserID){
         name: ServerName,
         user: UserID,
         nest: 5,
-        egg: 17,
-        docker_image: "ghcr.io/parkervcp/yolks:nodejs_20",
-        startup: `/usr/local/bin/npm i && /usr/local/bin/node /home/container/{{BOT_JS_FILE}}`,
+        egg: 19,
+        docker_image: "ghcr.io/parkervcp/yolks:python_3.9",
+        startup:
+            'if [[ ! -z "{{PY_PACKAGES}}" ]]; then pip install -U --prefix .local {{PY_PACKAGES}}; fi; if [[ -f /home/container/${REQUIREMENTS_FILE} ]]; then pip install -U --prefix .local -r ${REQUIREMENTS_FILE}; fi; ${STARTUP_CMD}',
         limits: {
             memory: 128,
             swap: -1,
@@ -21,7 +22,8 @@ function createServer(ServerName, UserID){
             cpu: 20,
         },
         environment: {
-            BOT_JS_FILE: "index.js",
+            REQUIREMENTS_FILE: "requirements.txt",
+            STARTUP_CMD: "bash",
         },
         feature_limits: {
             databases: 0,
