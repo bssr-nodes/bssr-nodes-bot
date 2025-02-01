@@ -16,7 +16,6 @@ exports.run = async (client, message, args) => {
     let user = message.author;
     let userID = message.author.id;
 
-    // Allow Bot Admins to view other users' servers.
     if (message.member.roles.cache.find((r) => r.id === Config.DiscordBot.Roles.BotAdmin))
         userID = args[1] || message.author.id;
 
@@ -36,83 +35,83 @@ exports.run = async (client, message, args) => {
         user = client.users.cache.get(userID);
     }
 
-    // List servers
     var arr = [];
 
-    await Axios({
-        url: `${Config.Pterodactyl.hosturl}/api/application/users/${userAccount.consoleID}?include=servers`,
-        method: "GET",
-        followRedirect: true,
-        maxRedirects: 5,
-        headers: {
-            Authorization: `Bearer ${Config.Pterodactyl.apikey}`,
-            "Content-Type": "application/json",
-            Accept: "Application/vnd.pterodactyl.v1+json",
-        },
-    }).then(async (Response) => {
-        const preoutput = Response.data.attributes.relationships.servers.data;
-        arr.push(...preoutput);
-        
-        const format = (server) =>
-            arr.length > 20
-                ? `\`${server.attributes.identifier}\``
-                : `**${server.attributes.name}** (ID: \`${server.attributes.identifier}\`)`;
-        
-        const freeServers = arr
-            .filter((server) => !Config.DonatorNodes.includes(server.attributes.node))
-            .map(format);
-        const donoServers = arr
-            .filter((server) => Config.DonatorNodes.includes(server.attributes.node))
-            .map(format);
-        
-        if (arr.length === 0) {
-            message.reply(
-                `${userID === message.author.id ? "You do" : "That user does"} not have any servers.`
-            );
-        } else {
-            let embedContent = ``;
-        
-            if (freeServers.length > 0)
-                embedContent += `:free: **Free (${freeServers.length})**\n${freeServers.join("\n")}\n\n`;
-            if (donoServers.length > 0)
-                embedContent += `:money_with_wings: **Premium (${donoServers.length})**\n${donoServers.join("\n")}\n\n`;
-        
-            // This checks to see if the content length exceeds Discord's character limit.
-            if (embedContent.length > 4096) {
-                const fileContent = `${embedContent}`.replace(/\*\*|\n\n/g, "");
-                const attachment = new Discord.AttachmentBuilder(Buffer.from(fileContent), {
-                    name: "server_list.txt",
-                });
-        
-                await message.reply({
-                    content: `${userID === message.author.id ? "Your" : "Their"} server list exceeds Discord's character limit. Here is the list:`,
-                    files: [attachment],
-                });
-            } else {
-                const serverListEmbed = new Discord.EmbedBuilder()
-                    .setTitle(`Server List (${arr.length})`)
-                    .setColor('Blue')
-                    .setDescription(embedContent)
-                    .setTimestamp()
-                    .setFooter({ text: "Command Executed By: " + message.author.username + ` (${message.author.id})`, iconURL: message.author.avatarURL() });
-        
-                if (userID !== message.author.id) {
-                    serverListEmbed.setAuthor({
-                        name: user.tag,
-                        iconURL: user.displayAvatarURL({ format: "png", dynamic: true }),
-                        url: `https://discord.com/users/${user.id}`,
-                    });
-                }
-        
-                await message.reply({ embeds: [serverListEmbed] });
-            }
-        }
-        })
-        .catch(async (Error) => {
-            if (Error.response.status >= 500) {
-                return await message.reply("A timeout error occured while loading servers. Please try again later.");
-            } else {
-                return await message.reply("An error occurred while loading servers. Please try again later.");
+    try {
+        const response = await Axios({
+            url: `${Config.Pterodactyl.hosturl}/api/application/servers`,
+            method: "GET",
+            maxRedirects: 5,
+            headers: {
+                Authorization: `Bearer ${Config.Pterodactyl.apikey}`,
+                "Content-Type": "application/json",
+                Accept: "Application/vnd.pterodactyl.v1+json",
+            },
+        });
+
+        const servers = response.data.data;
+    
+        servers.forEach(server => {
+            if (server.attributes.user === userAccount.consoleID) {
+                arr.push(server);
             }
         });
+    
+        console.log("Filtered servers:", arr);
+    } catch (error) {
+        console.error('Error:', error.response?.data || error.message);
+        return message.reply("An error occurred while loading servers. Please try again later.");
+    }
+
+    const format = (server) =>
+        arr.length > 20
+            ? `\`${server.attributes.identifier}\``
+            : `**${server.attributes.name}** (ID: \`${server.attributes.identifier}\`)`;
+
+    const freeServers = arr
+        .filter((server) => !Config.DonatorNodes.includes(server.attributes.node))
+        .map(format);
+    const donoServers = arr
+        .filter((server) => Config.DonatorNodes.includes(server.attributes.node))
+        .map(format);
+
+    if (arr.length === 0) {
+        message.reply(
+            `${userID === message.author.id ? "You do" : "That user does"} not have any servers.`
+        );
+    } else {
+        let embedContent = ``;
+
+        if (freeServers.length > 0)
+            embedContent += `:free: **Free (${freeServers.length})**\n${freeServers.join("\n")}\n\n`
+
+        if (embedContent.length > 4096) {
+            const fileContent = `${embedContent}`.replace(/\*\*|\n\n/g, "");
+            const attachment = new Discord.AttachmentBuilder(Buffer.from(fileContent), {
+                name: "server_list.txt",
+            });
+
+            await message.reply({
+                content: `${userID === message.author.id ? "Your" : "Their"} server list exceeds Discord's character limit. Here is the list:`,
+                files: [attachment],
+            });
+        } else {
+            const serverListEmbed = new Discord.EmbedBuilder()
+                .setTitle(`Server List (${arr.length})`)
+                .setColor('Blue')
+                .setDescription(embedContent)
+                .setTimestamp()
+                .setFooter({ text: "Command Executed By: " + message.author.username + ` (${message.author.id})`, iconURL: message.author.avatarURL() });
+
+            if (userID !== message.author.id) {
+                serverListEmbed.setAuthor({
+                    name: user.tag,
+                    iconURL: user.displayAvatarURL({ format: "png", dynamic: true }),
+                    url: `https://discord.com/users/${user.id}`,
+                });
+            }
+
+            await message.reply({ embeds: [serverListEmbed] });
+        }
+    }
 };
