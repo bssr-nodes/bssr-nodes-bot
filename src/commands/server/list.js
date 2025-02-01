@@ -57,7 +57,6 @@ exports.run = async (client, message, args) => {
             }
         });
     
-        console.log("Filtered servers:", arr);
     } catch (error) {
         console.error('Error:', error.response?.data || error.message);
         return message.reply("An error occurred while loading servers. Please try again later.");
@@ -78,7 +77,7 @@ exports.run = async (client, message, args) => {
         let embedContent = ``;
 
         if (freeServers.length > 0)
-            embedContent += `:free: **Free (${freeServers.length})**\n${freeServers.join("\n")}\n\n`
+            embedContent += `**Servers: (${freeServers.length})**\n${freeServers.join("\n")}\n\n`
 
         if (embedContent.length > 4096) {
             const fileContent = `${embedContent}`.replace(/\*\*|\n\n/g, "");

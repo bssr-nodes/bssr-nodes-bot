@@ -3,10 +3,10 @@ const Config = require('../config.json');
 const Status = {
         Nodes: {
             "Nodes": {
-                pnode1: {
+                car: {
                     Name: "Car",
                     serverID: "d92a4b20",
-                    IP: Config.Nodes.PNode1,
+                    IP: Config.Nodes.Car,
                     ID: "1",
                     Location: Config.Ping.CA,
                     MaxLimit: 100
