@@ -12,14 +12,13 @@ exports.description = "Server lockdown command. Locked to Administator(s), Co Ow
  * @returns void
  */
 exports.run = async (client, message, args) => {
-    //If user is not a Owner, CoOwner, or Admin, returns.
     if (
         !message.member.roles.cache.find((Role) =>
             [
                 Config.DiscordBot.Roles.Owner,
                 Config.DiscordBot.Roles.CoOwner,
-                Config.DiscordBot.Roles.Admin,
-            ].some((List) => List == Role.id),
+                ...Config.DiscordBot.Roles.Admin,
+            ].some((List) => List === Role.id)
         )
     )
         return;

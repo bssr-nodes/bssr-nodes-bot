@@ -13,7 +13,7 @@ exports.description = "Shows if an account is linked.";
  * @returns void
  */
 exports.run = async (client, message, args) => {
-    if (!message.member.roles.cache.has(Config.DiscordBot.Roles.Admin)) return;
+    if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.Admin.includes(role.id))) return;
 
     if (args[1] == null) {
         await message.reply(
