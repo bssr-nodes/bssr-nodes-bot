@@ -2,8 +2,6 @@
     const fs = require("fs");
     const { QuickDB, MySQLDriver } = require("quick.db");
     const Discord = require("discord.js");
-    const Sentry = require("@sentry/node");
-    const { nodeProfilingIntegration } = require("@sentry/profiling-node");
  
 
     const Config = require("./config.json");
