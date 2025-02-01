@@ -3,9 +3,9 @@ const Config = require('./config.json');
 const fs = require("fs");
 const path = require("path");
 
-global.gamingFREE = [14]; // Gaming nodes
-global.botswebdbFREE = [38]; // Bots, Websites and Databases nodes
-global.storageFREE = [36]; // Storage nodes
+global.gamingFREE = [1]; // Gaming nodes
+global.botswebdbFREE = [1]; // Bots, Websites and Databases nodes
+global.storageFREE = [1]; // Storage nodes
 
 let ServerTypes = {};
 
