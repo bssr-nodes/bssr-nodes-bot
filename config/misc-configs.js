@@ -13,6 +13,7 @@ const misc = {
         "737603315722092544", //sarah
         "716761186812821604", //microwave
         "871722786006138960", //cyteon
+        "567185519063203846", //avery
     ],
 
     //Staff who can run eval and exec.
