@@ -100,6 +100,6 @@ module.exports = async (client, message) => {
             }
         }
     } catch (Error) {
-        Sentry.captureException(Error);
+        console.log(Error);
     }
 };

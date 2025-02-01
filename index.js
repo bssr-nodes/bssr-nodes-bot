@@ -29,7 +29,7 @@
     global.nodeStatus = db.table("nodeStatus"); //Status of the Node.
     global.nodeServers = db.table("nodeServers"); //Counts of servers on each Node.
 
-    process.on("unhandledRejection", (Error) => Sentry.captureException(Error));
+    process.on("unhandledRejection", (Error) => console.log(Error));
 
     //Discord Bot:
     const client = new Discord.Client({
