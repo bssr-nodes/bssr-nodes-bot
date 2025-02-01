@@ -59,7 +59,7 @@ const misc = {
     accountLinked: "1250044501180026881",   //Staff - Account Linked
 
     // Account purge category.
-    accounts: "1250044501180026881",         //General - Account Creation Channels
+    accounts: "1250359312249917501",         //General - Account Creation Channels
 }
 
 module.exports = misc;
