@@ -3,13 +3,15 @@
  * 
  * @returns {String}
  */
+const crypto = require('crypto');
 
 module.exports = function () {
     const CAPSNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     let password = "";
 
     for (let i = 0; i < 16; i++) {
-        password += CAPSNUM[Math.floor(Math.random() * CAPSNUM.length)];
+        const randomIndex = crypto.randomBytes(1)[0] % CAPSNUM.length;
+        password += CAPSNUM[randomIndex];
     }
 
     return password;

@@ -285,7 +285,7 @@ exports.run = async (client, message, args) => {
                             .setTitle("An error has occurred:")
                             .setDescription(
                                 "**ERRORS:**\n\n- " +
-                                errors.map((error) => error.detail.replace("\n", " ")).join("\n- ")
+                                errors.map((error) => error.detail.replace(/\n/g, " ")).join("\n- ")
                             )
                             .setTimestamp()
                             .setFooter({
