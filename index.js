@@ -1,207 +1,72 @@
-global.config = require("./config.json");
+;(async () => {
+    const fs = require("fs");
+    const { QuickDB, MySQLDriver } = require("quick.db");
+    const Discord = require("discord.js");
+    const Sentry = require("@sentry/node");
+    const { nodeProfilingIntegration } = require("@sentry/profiling-node");
+ 
 
-// New global cache system (Lazy way)
-global.users = [];
+    const Config = require("./config.json");
 
-global.fs = require("fs");
-const path = require("path");
-global.chalk = require("chalk");
-const nodemailer = require("nodemailer");
-global.axios = require("axios");
-global.transport = nodemailer.createTransport({
-    host: config.Email.Host,
-    port: config.Email.Port,
-    auth: {
-        user: config.Email.User,
-        pass: config.Email.Password,
-    },
-});
-
-// Initialising Node Checker
-require("./nodestatsChecker");
-
-// Discord Bot
-let db = require("quick.db");
-const { Client, Collection, IntentsBitField, Partials, REST, Routes } = require("discord.js");
-global.Discord = require("discord.js");
-
-global.moment = require("moment");
-global.userData = new db.table("userData"); // User data, Email, ConsoleID, Link time, Username, DiscordID
-global.settings = new db.table("settings"); // Admin settings
-global.webSettings = new db.table("webSettings"); // Web settings (forgot what this is even for)
-global.domains = new db.table("linkedDomains"); // Linked domains for unproxy and proxy cmd
-global.nodeStatus = new db.table("nodeStatus"); // Node status. Online or offline nodes
-global.userPrem = new db.table("userPrem"); // Premium user data, Donated, Boosted, Total
-global.nodeServers = new db.table("nodeServers"); // Server count for node limits to stop nodes becoming overloaded
-global.codes = new db.table("redeemCodes"); // Premium server redeem codes...
-global.nodePing = new db.table("nodePing"); // Node ping response time
-global.moderationHistory = new db.table("moderationHistory"); // Moderation history, duh.
-
-global.client = new Client({
-    intents: [
-        IntentsBitField.Flags.DirectMessages,
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMessages,
-    ],
-    partials: [
-        Partials.Message,
-        Partials.User,
-        Partials.Channel,
-    ],
-});
-
-global.bot = global.client;
-
-global.pollPingLastUsed = 0;
-
-// Event handler
-fs.readdir("./bot/discord/events/", (err, files) => {
-    if (err) console.error(err);
-    files = files.filter(f => f.endsWith(".js"));
-    files.forEach(f => {
-        const event = require(`./bot/discord/events/${f}`);
-        client.on(f.split(".")[0], event.bind(null, client));
-        delete require.cache[require.resolve(`./bot/discord/events/${f}`)];
+    //Starting MySQL Database, and global tables.
+    const mysqlDriver = new MySQLDriver({
+        host: Config.database.host,
+        port: Config.database.port,
+        user: Config.database.user,
+        password: Config.database.pass,
+        database: Config.database.db,
     });
-});
 
-global.createList = {};
-global.createListPrem = {};
+    await mysqlDriver.connect();
+    const db = new QuickDB({ driver: mysqlDriver });
 
-// Import all create server lists
-fs.readdir("./create-free/", (err, files) => {
-    if (err) console.error(err);
-    files = files.filter(f => f.endsWith(".js"));
-    files.forEach(f => {
-        require(`./create-free/${f}`);
+    global.moment = require("moment");
+    global.userData = db.table("userData"); //User data, Email, ConsoleID, Link time, Username, DiscordID
+    global.nodeStatus = db.table("nodeStatus"); //Node status. Online or offline nodes
+    global.userPrem = db.table("userPrem"); //Premium user data, Donated, Boosted, Total
+    global.codes = db.table("redeemCodes"); //Premium server redeem codes...
+    global.nodePing = db.table("nodePing"); //Node ping response time
+    global.nodeStatus = db.table("nodeStatus"); //Status of the Node.
+    global.nodeServers = db.table("nodeServers"); //Counts of servers on each Node.
+
+    process.on("unhandledRejection", (Error) => Sentry.captureException(Error));
+
+    //Discord Bot:
+    const client = new Discord.Client({
+        intents: [
+            Discord.GatewayIntentBits.Guilds,
+            Discord.GatewayIntentBits.GuildMembers,
+            Discord.GatewayIntentBits.GuildModeration,
+            Discord.GatewayIntentBits.GuildIntegrations,
+            Discord.GatewayIntentBits.GuildPresences,
+            Discord.GatewayIntentBits.GuildMessages,
+            Discord.GatewayIntentBits.GuildMessageReactions,
+            Discord.GatewayIntentBits.GuildMessageTyping,
+            Discord.GatewayIntentBits.DirectMessages,
+            Discord.GatewayIntentBits.DirectMessageReactions,
+            Discord.GatewayIntentBits.DirectMessageTyping,
+            Discord.GatewayIntentBits.MessageContent
+        ],
+        partials: [
+            Discord.Partials.Channel,
+            Discord.Partials.Message,
+            Discord.Partials.Reaction
+        ]
     });
-});
 
-fs.readdir("./create-premium/", (err, files) => {
-    if (err) console.error(err);
-    files = files.filter(f => f.endsWith(".js"));
-    files.forEach(f => {
-        delete require.cache[require.resolve(`./create-premium/${f}`)];
-        require(`./create-premium/${f}`);
-    });
-});
-
-// Global password gen
-const CAPSNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-global.getPassword = () => {
-    var password = "";
-    while (password.length < 16) {
-        password += CAPSNUM[Math.floor(Math.random() * CAPSNUM.length)];
-    }
-    return password;
-};
-
-// Slash command setup
-global.client.commands = new Collection();
-const commands = [];
-
-// Function to handle loading commands
-function loadCommands(directory) {
-    const entries = fs.readdirSync(directory, { withFileTypes: true });
-
-    for (const entry of entries) {
-        const fullPath = path.join(directory, entry.name);
-
-        if (entry.isDirectory()) {
-            loadCommands(fullPath);
-        } else if (entry.isFile() && entry.name.endsWith('.js')) {
-            try {
-                const command = require(fullPath);
-
-                if (command.data && command.data.name) {
-                    client.commands.set(command.data.name, command);
-                    commands.push(command.data.toJSON());
-                } else {
-                    console.error(`Command in ${fullPath} is missing the 'data' property or 'name' property.`);
-                }
-            } catch (error) {
-                console.error(`Failed to load command from ${fullPath}:`, error);
-            }
-        } else {
-            console.error(`Skipped non-JS file or non-directory entry: ${fullPath}`);
-        }
-    }
-}
-
-// Start loading commands from the base directory
-const baseDirectory = path.resolve('./bot/discord/commands');
-loadCommands(baseDirectory);
-
-// Register slash commands for a specific guild
-client.once('ready', async () => {
-    try {
-        console.log('Started refreshing guild (/) commands.');
-
-        const rest = new REST({ version: '10' }).setToken(config.DiscordBot.Token);
-        const guild = client.guilds.cache.get(config.DiscordBot.mainGuild);
-
-        if (!guild) {
-            console.error('Guild not found');
-            return;
-        }
-
-        // Fetch all existing commands and delete them
-        const existingCommands = await rest.get(Routes.applicationCommands(client.user.id));
-        const deletePromises = existingCommands.map(cmd =>
-            rest.delete(`${Routes.applicationCommands(client.user.id)}/${cmd.id}`)
-        );
-
-        await Promise.all(deletePromises);
-
-        // Register new commands
-        await rest.put(Routes.applicationGuildCommands(client.user.id, config.DiscordBot.mainGuild), {
-            body: commands,
+    //Event Handler.
+    fs.readdir("./src/events/", (err, files) => {
+        files = files.filter((f) => f.endsWith(".js"));
+        files.forEach((f) => {
+            const event = require(`./src/events/${f}`);
+            client.on(f.split(".")[0], event.bind(null, client));
+            delete require.cache[require.resolve(`./src/events/${f}`)];
         });
+    });
 
-        console.log('Successfully reloaded application (/) commands for the guild:', config.DiscordBot.mainGuild);
-    } catch (error) {
-        console.error('Error while registering guild commands:', error);
-    }
-    console.log(`${client.user.tag} is logged in!`);
-});
+    //Server Creation:
+    await require('./createData_Prem.js').initialStart();
+    await require('./createData.js').initialStart();
 
-
-// Command handling
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-
-    const command = client.commands.get(interaction.commandName);
-
-    if (!command) return;
-
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error('Error executing command:', error);
-        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-    }
-});
-
-// Bot login
-client.login(config.DiscordBot.Token);
-
-//setInterval(async () => {
-    users.length = 0;
-    axios({
-        url: "https://panel.bssr-nodes.com/api/application/users?per_page=9999999999999",
-        method: "GET",
-        followRedirect: true,
-        maxRedirects: 5,
-        headers: {
-            Authorization: "Bearer " + config.Pterodactyl.apikey,
-            "Content-Type": "application/json",
-           Accept: "Application/vnd.pterodactyl.v1+json",
-        },
-    })
-        .then((resources) => {
-            users.push(...resources.data.data);
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-//}, 10 * 60 * 1000);
+    client.login(Config.DiscordBot.Token);
+})();

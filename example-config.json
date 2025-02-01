@@ -1,0 +1,118 @@
+{
+    "join": "",
+    "Port": "",
+    "APIPort": "",
+    "externalPassword": "",
+    "db": "",
+    "FRProxy": {
+        "url": "",
+        "authKey": "",
+        "email": "",
+        "pass": ""
+    },
+    "CAProxy": {
+        "url": "",
+        "authKey": "",
+        "email": "",
+        "pass": ""
+    },
+    "DonatorProxy": {
+        "url": "",
+        "authKey": "",
+        "email": "",
+        "pass": ""
+    },
+    "Ping": {
+        "UK": "",
+        "CA": "",
+        "EU": ""
+    },
+    "node7": {
+        "price": ""
+    },
+    "GoogleAPIKey": "",
+    "DiscordBot": {
+        "Token": "",
+        "Prefix": "",
+        "clientID": "",
+        "clientSecret": "",
+        "callbackURL": "",
+        "ownerID": "",
+        "mainGuild": "",
+        "mLogs": "",
+        "oLogs": "",
+        "modLogs": "",
+        "requestsChannel": "",
+        "welcome": "",
+        "roles": {
+            "member": "",
+            "client": "",
+            "bot": "",
+            "staff": "",
+            "mute": ""
+        },
+        "reactionRoles": {
+            "898041838701781013": {
+                "918288000071381002": {
+                    "📣": "",
+                    "♻️": ""
+                },
+                "918240983362183211": {
+                    "🕹️": "",
+                    "🎥": "",
+                    "🎉": "",
+                    "❔": "",
+                    "⌛": ""
+                },
+                "918242254018199633": {
+                    "🐍": "",
+                    "☕": "",
+                    "🖲️": "",
+                    "✨": ""
+                }
+            },
+            "754441222424363088": {
+                "770046936957845514": {
+                    "🔪": ""
+                }
+            }
+        }
+    },
+    "DB": {
+        "MongoDB": ""
+    },
+    "Pterodactyl": {
+        "hosturl": "",
+        "apikey": "",
+        "apikeyclient": ""
+    },
+    "Email": {
+        "Host": "",
+        "Port": "",
+        "User": "",
+        "Password": "",
+        "From": ""
+    },
+    "Email2": {
+        "Host": "",
+        "Port": "",
+        "User": "",
+        "Password": "",
+        "From": ""
+    },
+    "Nodes": {
+        "Byte": "",
+        "Pixel": "",
+        "car": ""
+    },
+    "Services": {
+        "pteropublic": "",
+        "pteroprivate": ""
+    },
+    "Enabled": {
+        "NodeStats": "",
+        "Welcome": "",
+        "nodestatsChecker": "",
+        "outageChecker": ""
+    }
+}

@@ -1,85 +1,52 @@
 const axios = require("axios");
-global.gamingPREM = [27]; // Gaming nodes
-global.botswebdbPREM = [26, 28]; // Bots, Websites and Databases nodes
-global.storagePREM = [36]; // Storage nodes
-/*
-Donator Nodes as followed:
-Dono-01  : 26
-Dono-02  : 27
-Dono-03  : 28
-*/
-let data = (serverName, userID) => {
-    let toReturn = {
-        nginx: null,
-        nodejs: null,
-        python: null,
-        aio: null,
-        storage: null,
-        java: null,
-        paper: null,
-        forge: null,
-        altv: null,
-        multitheftauto: null,
-        samp: null,
-        bedrock: null,
-        pocketminemp: null,
-        gmod: null,
-        csgo: null,
-        arkse: null,
-        ts3: null,
-        mumble: null,
-        rust: null,
-        mongodb: null,
-        redis: null,
-        postgres14: null,
-        postgres16: null,
-        daystodie: null,
-        assettocorsa: null,
-        avorion: null,
-        barotrauma: null,
-        waterfall: null,
-        spigot: null,
-        sharex: null,
-        codeserver: null,
-        gitea: null,
-        haste: null,
-        uptimekuma: null,
-        rustc: null,
-        redbot: null,
-        grafana: null,
-        openx: null,
-        mariadb: null,
-        // minio: null,
-        lavalink: null,
-        rabbitmq: null,
-        palworld: null,
-        nukkit: null,
-        curseforge: null,
-        bun: null,
-        storage: null,
-        influxdb: null,
-    };
-    for (let [name, filled] of Object.entries(createListPrem)) {
-        toReturn[name] = filled(serverName, userID);
-    }
-    return toReturn;
+const Config = require('./config.json');
+const fs = require("fs");
+const path = require("path");
+
+global.gamingPREM = [27]; // Donator Gaming Node Locations.
+global.botswebdbPREM = [40]; // Donator Bot, Website, Databases Node Locations.
+global.storagePREM = [36]; // Donator Storage Node Locations.
+
+let ServerTypes = {};
+
+const createParams = (ServerName, ServerType, UserID) => {
+    return ServerTypes[ServerType].createServer(ServerName, UserID);
 };
-let createServer = (data) => {
+
+const createServer = (ServerData) => {
     return axios({
-        url: config.Pterodactyl.hosturl +
-            "/api/application/servers",
+        url: Config.Pterodactyl.hosturl + "/api/application/servers",
         method: "POST",
         followRedirect: true,
         maxRedirects: 5,
         headers: {
-            Authorization: "Bearer " + config.Pterodactyl.apikey,
+            Authorization: "Bearer " + Config.Pterodactyl.apikey,
             "Content-Type": "application/json",
-            Accept: "Application/vnd.pterodactyl.v1+json",
+            Accept: "Application/vnd.pterodactyl.v1+json"
         },
-        data: data,
+        data: ServerData,
     });
 };
+
+async function initialStart() {
+    try {
+        const files = (await fs.promises.readdir("./create-premium/")).filter((f) => f.endsWith(".js"));
+
+        for (const file of files) {
+            const fullPath = path.resolve("./create-premium/", file);
+            delete require.cache[require.resolve(fullPath)];
+            const module = require(fullPath);
+
+            ServerTypes[file.replace(".js", "")] = module;
+        }
+    } catch (Error) {
+        console.error("Error reading files:", Error);
+    }
+}
+
 module.exports = {
-    createParams: data,
-    createServer: createServer,
+    serverTypes: ServerTypes,   //Types of servers property.
+    createParams: createParams, //Create server parameters with server name and user ID.
+    createServer: createServer, //Create server function.
+    initialStart: initialStart  //Initial start function.
 };
