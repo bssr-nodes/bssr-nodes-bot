@@ -24,9 +24,9 @@ function createServer(ServerName, UserID){
             STARTUP_CMD: "bash",
         },
         feature_limits: {
-            databases: 2,
-            allocations: 1,
-            backups: 10,
+            databases: 0,
+            allocations: 0,
+            backups: 0,
         },
         deploy: {
             locations: botswebdbFREE,
