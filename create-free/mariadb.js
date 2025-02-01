@@ -1,7 +1,7 @@
 module.exports = {
     isGameServer: false,
     isDisabled: false,
-    subCategory: "Languages",
+    subCategory: "Databases",
     createServer: createServer
 }
 
@@ -10,29 +10,28 @@ function createServer(ServerName, UserID){
         name: ServerName,
         user: UserID,
         nest: 5,
-        egg: 15,
-        docker_image: "danbothosting/aio",
-        startup: "${STARTUP_CMD}",
+        egg: 16,
+        docker_image: "ghcr.io/parkervcp/yolks:mariadb_10.3",
+        startup: `{ /usr/sbin/mysqld & } && sleep 5 && mysql -u root`,
         limits: {
-            memory: 0,
+            memory: 128,
             swap: -1,
-            disk: 0,
+            disk: 256,
             io: 500,
-            cpu: 0,
+            cpu: 20,
         },
-        environment: {
-            STARTUP_CMD: "bash",
-        },
+        environment: {},
         feature_limits: {
             databases: 2,
             allocations: 1,
             backups: 10,
         },
         deploy: {
-            locations: botswebdbPREM,
+            locations: botswebdbFREE,
             dedicated_ip: false,
             port_range: [],
         },
         start_on_completion: false,
+        oom_disabled: false,
     };
 };
