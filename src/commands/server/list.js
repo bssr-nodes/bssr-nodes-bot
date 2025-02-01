@@ -68,12 +68,7 @@ exports.run = async (client, message, args) => {
             ? `\`${server.attributes.identifier}\``
             : `**${server.attributes.name}** (ID: \`${server.attributes.identifier}\`)`;
 
-    const freeServers = arr
-        .filter((server) => !Config.DonatorNodes.includes(server.attributes.node))
-        .map(format);
-    const donoServers = arr
-        .filter((server) => Config.DonatorNodes.includes(server.attributes.node))
-        .map(format);
+    const freeServers = arr.map(format);
 
     if (arr.length === 0) {
         message.reply(
