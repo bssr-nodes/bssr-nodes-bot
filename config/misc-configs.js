@@ -5,6 +5,8 @@ const misc = {
         "737603315722092544", //sarah
         "716761186812821604", //microwave
         "871722786006138960", //cyteon
+        "730375236197023785", //lezetho
+        "1131236182899052696", //sky
     ],
 
     // Staff who can make code drops.
@@ -14,12 +16,15 @@ const misc = {
         "716761186812821604", //microwave
         "871722786006138960", //cyteon
         "567185519063203846", //avery
+        "730375236197023785", //lezetho
+        "1131236182899052696", //sky
     ],
 
     //Staff who can run eval and exec.
     botCommands: [
         "569352110991343616", //blxddy
-        "871722786006138960",  //cyteon
+        "730375236197023785", //lezetho
+        "1131236182899052696", //sky
     ],
 
     // Channels where the bot reacts with up and down.
