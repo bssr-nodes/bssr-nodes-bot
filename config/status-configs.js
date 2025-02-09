@@ -15,7 +15,7 @@ const Status = {
                     Name: "Private",
                     serverID: "53b26591",
                     IP: Config.Nodes.Private,
-                    ID: "1",
+                    ID: "2",
                     Location: Config.Ping.EU,
                     MaxLimit: 20
                 },
