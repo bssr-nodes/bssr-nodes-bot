@@ -11,7 +11,7 @@ const Status = {
                     Location: Config.Ping.CA,
                     MaxLimit: 100
                 },
-                car: {
+                private: {
                     Name: "Private",
                     serverID: "53b26591",
                     IP: Config.Nodes.Private,
