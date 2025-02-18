@@ -12,14 +12,13 @@ function createServer(ServerName, UserID){
         nest: 5,
         egg: 18,
         docker_image: "ghcr.io/parkervcp/yolks:bun_latest",
-        startup:
-            'if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == "1" ]]; then git pull; fi; if [[ ! -z ${BUN_PACKAGES} ]]; then bun install ${BUN_PACKAGES}; fi; if [[ ! -z ${RMBUN_PACKAGES} ]]; then bun remove ${RMBUN_PACKAGES}; fi; if [ -f /home/container/package.json ]; then bun install; fi; bun run {{MAIN_FILE}}',
+        startup: 'echo "online"; if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == "1" ]]; then git pull; fi; if [[ ! -z ${BUN_PACKAGES} ]]; then bun install ${BUN_PACKAGES}; fi; if [[ ! -z ${RMBUN_PACKAGES} ]]; then bun remove ${RMBUN_PACKAGES}; fi; if [ -f /home/container/package.json ]; then bun install; fi; bun run {{MAIN_FILE}}',
         limits: {
-            memory: 128,
+            memory: 512,
             swap: -1,
-            disk: 256,
+            disk: 512,
             io: 500,
-            cpu: 20,
+            cpu: 50,
         },
         environment: {
             GIT_ADDRESS: null,

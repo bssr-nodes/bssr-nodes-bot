@@ -109,13 +109,13 @@ const parseStatus = async () => {
 
             let statusText;
             if (nodeStatusData?.maintenance) {
-                statusText = `🟣 Maintenance ~ Returning Soon!`;
+                statusText = `<a:maintenance:1265630967872229408> Maintenance ~ Returning Soon!`;
             } else if (nodeStatusData?.status) {
-                statusText = `🟢 Online ${serverUsage}`;
+                statusText = `<:up:1265632822547447839> Online ${serverUsage}`;
             } else if (nodeStatusData?.is_vm_online == null) {
-                statusText = "🔴 **Offline**";
+                statusText = "<:error:1265632865215971390:> **Offline**";
             } else {
-                statusText = (nodeStatusData.is_vm_online ? "🟠 **Wings**" : "🔴 **System**") +
+                statusText = (nodeStatusData.is_vm_online ? "<a:loading:1265631230540513363> **Wings**" : "<:error:1265632865215971390:> **System**") +
                     ` **offline** ${serverUsage}`;
             }
 
@@ -132,7 +132,7 @@ const parseStatus = async () => {
 
                 const serviceStatusData = await nodeStatus.get(name.toLowerCase());
 
-                const statusText = serviceStatusData?.status ? "🟢 Online" : "🔴 **Offline**";
+                const statusText = serviceStatusData?.status ? "<:up:1265632822547447839> Online" : "<:error:1265632865215971390:> **Offline**";
 
                 temp.push(`${data.name}: ${statusText}`);
             }

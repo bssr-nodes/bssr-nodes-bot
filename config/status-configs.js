@@ -4,11 +4,11 @@ const Status = {
         Nodes: {
             "Nodes": {
                 car: {
-                    Name: "Car",
+                    Name: "Earth",
                     serverID: "d92a4b20",
                     IP: Config.Nodes.Car,
                     ID: "1",
-                    Location: Config.Ping.CA,
+                    Location: Config.Ping.EU.EARTH,
                     MaxLimit: 100
                 },
                 private: {
@@ -16,8 +16,8 @@ const Status = {
                     serverID: "53b26591",
                     IP: Config.Nodes.Private,
                     ID: "2",
-                    Location: Config.Ping.EU,
-                    MaxLimit: 20
+                    Location: Config.Ping.EU.PRIVATE,
+                    MaxLimit: 15
                 },
             },
         },
@@ -26,7 +26,7 @@ const Status = {
             pterodactylPublic: {
                 name: "Pterodactyl (Public)",
                 IP: Config.Services.pteropublic,
-                Location: Config.Ping.CA
+                Location: Config.Ping.EU.PANEL
             }
         }
 }
