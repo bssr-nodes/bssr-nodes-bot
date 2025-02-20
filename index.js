@@ -54,13 +54,25 @@
 
     //Event Handler.
     fs.readdir("./src/events/", (err, files) => {
+        if (err) {
+            console.error('Error reading event files:', err);
+            return;
+        }
+        
         files = files.filter((f) => f.endsWith(".js"));
         files.forEach((f) => {
             const event = require(`./src/events/${f}`);
-            client.on(f.split(".")[0], event.bind(null, client));
+            
+            if (typeof event === 'function') {
+                client.on(f.split(".")[0], event.bind(null, client));
+            } else {
+                console.error(`Event file ${f} does not export a function.`);
+            }
+    
             delete require.cache[require.resolve(`./src/events/${f}`)];
         });
     });
+    
 
     //Server Creation:
     await require('./createData.js').initialStart();
