@@ -4,7 +4,6 @@ const { exec } = require("child_process");
 const Util = require('util');
 const execPromise = Util.promisify(exec);
 const axios = require('axios');
-const { transferServer } = require('./transfer.js');
 
 const ServerStatus = require("../serverStatus.js");
 const Config = require('../../config.json');
@@ -70,38 +69,4 @@ module.exports = async (client) => {
         console.log(Chalk.magenta("[NODE CHECKER] ") + Chalk.redBright("Disabled"));
     }
 
-    setInterval(async () => {
-        try {
-            const { data } = await axios.get(`${Config.Pterodactyl.hosturl}/api/application/servers`, {
-                headers: {
-                    Authorization: `Bearer ${Config.Pterodactyl.apikey}`,
-                    'Accept': 'Application/vnd.pterodactyl.v1+json',
-                },
-            });
-
-            const testServerID = '37';
-
-            data.data.forEach(async (server) => {
-                const serverID = server.attributes.id;
-                const nodeID = server.attributes.node;
-
-                if (serverID !== testServerID) return;
-
-                console.log(`Checking server ${serverID}...`);
-
-                if (nodeID === '2') {
-                    const user = await userData.get({ where: { consoleID: serverID } });
-
-                    if (user && !user.isWhitelisted) {
-                        console.log(`Server ${serverID} is on the private node and the user is not whitelisted, initiating transfer.`);
-                        await transferServer(client, serverID);
-                    } else {
-                        console.log(`Server ${serverID} is on the private node, but the user is whitelisted.`);
-                    }
-                }
-            });
-        } catch (error) {
-            console.error("Error fetching servers from Pterodactyl API:", error);
-        }
-    }, 30 * 60 * 1000); // Every 30 minutes
 };
