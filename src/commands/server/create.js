@@ -16,12 +16,14 @@ exports.run = async (client, message, args) => {
 
     const staff = message.member.roles.cache.has('1250045509868195840');
 
+/*
     if (!staff) {
         return message.reply(
             "Server creation is currently disabled due to a bug of servers being created on the private node. " +
             "We apologize for any inconvenience."
         );
     }
+    */
 
     // Removes all the other arguments, and joins the strings, then limits it to 150 characters.
     const ServerName = message.content.split(" ").slice(3).join(" ").slice(0, 150) + (message.content.split(" ").slice(3).join(" ").length > 150 ? "..." : "") || "Untitled Server (settings -> server name)";
