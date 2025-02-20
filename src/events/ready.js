@@ -79,7 +79,7 @@ module.exports = async (client) => {
                 },
             });
 
-            const testServerID = '05a48774';
+            const testServerID = '37';
 
             data.data.forEach(async (server) => {
                 const serverID = server.attributes.id;
