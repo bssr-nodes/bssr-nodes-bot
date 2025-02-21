@@ -111,11 +111,6 @@ exports.run = async (client, message, args) => {
                         });
         
                         deletionResults += `Server #${serverCounter} deleted!\n`;
-        
-                        // Adjust user usage if it's a Donator Node.
-                        if (Config.DonatorNodes.find(x => x === server.attributes.node)) {
-                            await userPrem.sub(`${message.author.id}.used`, 1);
-                        }
 
                         serverCounter++;
                     } catch (deletionError) {
