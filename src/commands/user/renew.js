@@ -12,6 +12,15 @@ const Config = require("../../../config.json");
  */
 
 exports.run = async (client, message) => {
+    const staff = message.member.roles.cache.has('1250045509868195840');
+
+    
+        if (!staff) {
+            return message.reply(
+                "This command is locked until the testing of this command is finished."
+            );
+        }
+        
     const data = await userData.get(message.author.id);
     if (!data) return await message.reply("You do not have an account.");
 
