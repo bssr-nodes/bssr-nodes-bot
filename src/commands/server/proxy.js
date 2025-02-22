@@ -214,6 +214,7 @@ exports.run = async (client, message, args) => {
                     {
                         domain: args[1].toLowerCase(),
                         serverID: args[2],
+                        proxyID: ResponseAfterProxy.data.id,
                         location: ProxyLocation.dbLocation,
                     },
                 ]);
