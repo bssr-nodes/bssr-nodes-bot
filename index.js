@@ -80,6 +80,26 @@
     client.login(Config.DiscordBot.Token);
 
     async function regenerateSSL() {
+        async function getToken(Url, Email, Password) {
+            const serverRes = await Axios({
+                url: Url + "/api/tokens",
+                method: "POST",
+                followRedirect: true,
+                maxRedirects: 5,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    identity: Email,
+                    secret: Password,
+                },
+            });
+        
+            const token = "Bearer " + serverRes.data.token;
+        
+            return token;
+        }
+
         const token = await getToken(
             Config.Proxy1.url,
             Config.Proxy1.email,
