@@ -4,7 +4,6 @@ const dns = require("dns");
 
 const Config = require('../../../config.json');
 const Proxies = require('../../../config/proxy-configs.js').Proxies;
-const PremiumDomains = require('../../../config/proxy-configs.js').PremiumDomains;
 const getUserServers = require('../../util/getUserServers.js');
 
 async function getToken(Url, Email, Password) {
@@ -49,7 +48,6 @@ exports.description = "Proxy a domain to a server. View this command for usage."
 exports.run = async (client, message, args) => {
 
     const ProxyLocations = Proxies.map((Proxy) => `> \`${Proxy.ip}\` - [${Proxy.name}] 🟢 Enabled`).join('\n');
-    const PremiumDomainsList = PremiumDomains.map((domain) => `\`${domain}\``).join(', ');
 
     const embed = new Discord.EmbedBuilder()
         .setTitle("**BSSR Nodes Proxy System**")
@@ -64,9 +62,7 @@ exports.run = async (client, message, args) => {
 
             ProxyLocations
 
-            + `\n\nIf you are using Cloudflare, make sure you are using **DNS only mode**, and disabling **always use HTTPS**.
-
-            Donators can use the ` + PremiumDomainsList + ` subdomains! Replace \`<domain>\` with the \`your-subdomain.domainhere\` to use it!`,
+            + `\n\nIf you are using Cloudflare, make sure you are using **DNS only mode**, and disabling **always use HTTPS**.`
         )
         .setColor("Blue");
 
@@ -74,11 +70,6 @@ exports.run = async (client, message, args) => {
         await message.channel.send({embeds: [embed]}).catch((Error) => {});
         return;
     }
-
-    if (PremiumDomains.some(domain => args[1].toLowerCase().includes(domain)) && !message.member.roles.cache.some(r => [Config.DiscordBot.Roles.Donator, Config.DiscordBot.Roles.Booster].includes(r.id))) {
-        return message.channel.send("Sorry, this domain is only available to donators and boosters.").catch((Error) => {});
-        
-    };
 
     const user = await userData.get(message.author.id);
 
@@ -106,18 +97,6 @@ exports.run = async (client, message, args) => {
         return message.channel.send(
             "ERROR: You must have a DNS A Record pointing to one of the following addresses: " +
                 validAddresses.join(", "),
-        ).catch((Error) => {});
-    }
-
-    const PremiumProxiesIPs = Proxies.filter((Proxy) => Proxy.premiumOnly).map((Proxy) => Proxy.ip);
-
-    if (
-        !message.member.roles.cache.some((r) =>
-            [Config.DiscordBot.Roles.Donator, Config.DiscordBot.Roles.Booster].includes(r.id),
-        ) && PremiumProxiesIPs.includes(dnsCheck.address)
-    ) {
-        return message.reply(
-            "Sorry, this proxy location is only available for boosters and donators.",
         ).catch((Error) => {});
     }
 
