@@ -22,6 +22,8 @@ async function getToken(Url, Email, Password) {
     });
 
     const token = "Bearer " + serverRes.data.token;
+
+    return token;
 }
 
 async function getAllProxies(Url, Token) {
