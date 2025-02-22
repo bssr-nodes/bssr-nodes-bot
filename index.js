@@ -81,7 +81,7 @@
 
     async function regenerateSSL() {
         async function getToken(Url, Email, Password) {
-            const serverRes = await Axios({
+            const serverRes = await axios({
                 url: Url + "/api/tokens",
                 method: "POST",
                 followRedirect: true,
