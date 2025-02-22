@@ -24,7 +24,7 @@ exports.run = async (client, message) => {
     await message.reply("Renewing SSL certificate for your domain... this can take up to 30 seconds.");
 
     const token = await getToken(
-        Config.Proxy1.apiUrl,
+        Config.Proxy1.url,
         Config.Proxy1.email,
         Config.Proxy1.password
     );
