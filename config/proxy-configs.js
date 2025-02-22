@@ -12,4 +12,4 @@ const Proxies = [
     },
 ]
 
-module.exports = { Proxies, PremiumDomains};
+module.exports = { Proxies };
