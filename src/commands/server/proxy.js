@@ -22,15 +22,9 @@ async function getToken(Url, Email, Password) {
     });
 
     const token = "Bearer " + serverRes.data.token;
-    
-    console.log("Token retrieved:", token);
-
-    return token;
 }
 
 async function getAllProxies(Url, Token) {
-    console.log("Using token:", Token);
-
     return await Axios({
         url: Url + "/api/nginx/proxy-hosts",
         method: "GET",
