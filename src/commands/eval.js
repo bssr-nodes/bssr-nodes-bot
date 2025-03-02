@@ -40,58 +40,57 @@ exports.run = async (client, message) => {
                 .replace(rege2, "69");
             return text;
         }
-        message.reply("Evaluating...").then((msg) => {
-            try {
-                let code = args.join(" ");
-                let evaled = eval(code);
+        const msg = await message.reply("Evaluating...");
+        try {
+            let code = args.join(" ");
+            let evaled = await eval(code); // Wait for the eval to finish
 
-                if (typeof evaled !== "string") {
-                    evaled = require("util").inspect(evaled);
-                }
-                if (evaled.length > 2000) {
-                    try {
-                        let evalcode1 = new Discord.EmbedBuilder()
-                            .setAuthor(
-                                `Eval by ${message.author.tag}`,
-                                `https://cdn.discordapp.com/emojis/314405560701419520.png`,
-                            )
-                            .setDescription(`**Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
-                            .addFields(
-                                {
-                                    name: `\u200b`,
-                                    value: `**Output:**\n\n\`\`\`js\nOutput too long, logged to ${__dirname}\\eval.txt\`\`\``,
-                                    inline: true,
-                                }
-                            )
-                            .setColor(0x00ff00)
-                            .setFooter({text: `Node.js - Time taken: ${Date.now() - message.createdTimestamp} ms`});
-                        msg.edit({
-                            content: "",
-                            embed: evalcode1,
-                        }),
-                            fs.writeFile(`eval.txt`, `${clean(evaled)}`),
-                            message.reply("Eval output", {
-                                files: ["eval.txt"],
-                            });
-                        return fs.writeFile(`eval.txt`, `${clean(evaled)}`);
-                    } catch (err) {
-                        let errorcode1 = new Discord.EmbedBuilder()
-                            .setAuthor({ name: `Eval by ${message.author.tag}`, icon_url: `https://cdn.discordapp.com/emojis/314405560701419520.png` })
-                            .setDescription(`**Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
-                            .addFields(
-                                {
-                                    name: `\u200b`,
-                                    value: `**Output:**\n\n\`\`\`js\nOutput too long, logged to ${__dirname}\\eval.txt\`\`\``,
-                                    inline: true,
-                                }
-                            )
-                            .setColor(0xff0000)
-                            .setFooter({text: `${Date.now() - message.createdTimestamp}ms`});
+            if (typeof evaled !== "string") {
+                evaled = require("util").inspect(evaled);
+            }
+            if (evaled.length > 2000) {
+                try {
+                    let evalcode1 = new Discord.EmbedBuilder()
+                        .setAuthor(
+                            `Eval by ${message.author.tag}`,
+                            `https://cdn.discordapp.com/emojis/314405560701419520.png`,
+                        )
+                        .setDescription(`**Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
+                        .addFields(
+                            {
+                                name: `\u200b`,
+                                value: `**Output:**\n\n\`\`\`js\nOutput too long, logged to ${__dirname}\\eval.txt\`\`\``,
+                                inline: true,
+                            }
+                        )
+                        .setColor(0x00ff00)
+                        .setFooter({text: `Node.js - Time taken: ${Date.now() - message.createdTimestamp} ms`});
+                    await msg.edit({
+                        content: "",
+                        embeds: [evalcode1],
+                    });
+                    await fs.promises.writeFile(`eval.txt`, `${clean(evaled)}`);
+                    await message.reply("Eval output", {
+                        files: ["eval.txt"],
+                    });
+                } catch (err) {
+                    let errorcode1 = new Discord.EmbedBuilder()
+                        .setAuthor({ name: `Eval by ${message.author.tag}`, icon_url: `https://cdn.discordapp.com/emojis/314405560701419520.png` })
+                        .setDescription(`**Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
+                        .addFields(
+                            {
+                                name: `\u200b`,
+                                value: `**Output:**\n\n\`\`\`js\nOutput too long, logged to ${__dirname}\\eval.txt\`\`\``,
+                                inline: true,
+                            }
+                        )
+                        .setColor(0xff0000)
+                        .setFooter({text: `${Date.now() - message.createdTimestamp}ms`});
 
-                        msg.edit({embeds: [errorcode1]});
-                        return fs.writeFile(`eval.txt`, `${clean(err)}`);
-                    }
+                    await msg.edit({embeds: [errorcode1]});
+                    await fs.promises.writeFile(`eval.txt`, `${clean(err)}`);
                 }
+            } else {
                 let evalcode = new Discord.EmbedBuilder()
                     .setAuthor(
                         {
@@ -109,62 +108,61 @@ exports.run = async (client, message) => {
                     )
                     .setColor(0x00ff00)
                     .setFooter({ text: `${Date.now() - message.createdTimestamp}ms`});
-                msg.edit({embeds: [evalcode]}).catch((e) => {});
-            } catch (err) {
-                let errorcode = new Discord.EmbedBuilder()
-                    .setAuthor(
-                        {
-                            name: `Eval by ${message.author.tag}`,
-                            icon_url: `https://cdn.discordapp.com/emojis/314405560701419520.png`,
-                        }
-                    )
-                    .setDescription(`**:inbox_tray: Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
-                    .addFields(
-                        {
-                            name: `\u200b`,
-                            value: `**Error:**\n\n\`\`\`js\n${clean(err)}\`\`\``,
-                            inline: true,
-                        }
-                    )
-                    .setColor(0xff0000)
-                    .setFooter({ text: `${Date.now() - message.createdTimestamp}ms`});
-                msg.edit({
-                    embeds: [errorcode]
-                }).catch((e) => {});
+                await msg.edit({embeds: [evalcode]}).catch((e) => {});
             }
-        });
-    } else {
-        message.reply("Evaluating...").then((msg) => {
-            const responses = [
-                "SyntaxError: Unexpected token F in JSON at position 420",
-                "SyntaxError: Unexpected token L in JSON at position 69",
-                "SyntaxError: Unexpected identifier",
-                "UnhandledPromiseRejectionWarning: DiscordAPIError: Missing Permissions",
-                "TypeError: Cannot read property 'messages' of undefined",
-                "UnhandledPromiseRejectionWarning: MongoError: bad auth: Authentication failed.",
-                `TypeError: Cannot read property '${args.join(" ")}' of undefined`,
-            ];
-            var randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            let errorcodefake = new Discord.EmbedBuilder()
+        } catch (err) {
+            let errorcode = new Discord.EmbedBuilder()
                 .setAuthor(
                     {
-                        "name": `Eval by ${message.author.tag}`,
-                        "icon_url": `https://cdn.discordapp.com/emojis/314405560701419520.png`
+                        name: `Eval by ${message.author.tag}`,
+                        icon_url: `https://cdn.discordapp.com/emojis/314405560701419520.png`,
                     }
                 )
-                .setDescription(`:inbox_tray: **Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
+                .setDescription(`**:inbox_tray: Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
                 .addFields(
                     {
                         name: `\u200b`,
-                        value: `:outbox_tray: **Output:**\`\`\`\n${randomResponse}\`\`\``,
+                        value: `**Error:**\n\n\`\`\`js\n${clean(err)}\`\`\``,
                         inline: true,
                     }
                 )
                 .setColor(0xff0000)
                 .setFooter({ text: `${Date.now() - message.createdTimestamp}ms`});
-                msg.edit({
-                    embeds: [errorcodefake]
-                });
+            await msg.edit({
+                embeds: [errorcode]
             }).catch((e) => {});
+        }
+    } else {
+        const msg = await message.reply("Evaluating...");
+        const responses = [
+            "SyntaxError: Unexpected token F in JSON at position 420",
+            "SyntaxError: Unexpected token L in JSON at position 69",
+            "SyntaxError: Unexpected identifier",
+            "UnhandledPromiseRejectionWarning: DiscordAPIError: Missing Permissions",
+            "TypeError: Cannot read property 'messages' of undefined",
+            "UnhandledPromiseRejectionWarning: MongoError: bad auth: Authentication failed.",
+            `TypeError: Cannot read property '${args.join(" ")}' of undefined`,
+        ];
+        var randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        let errorcodefake = new Discord.EmbedBuilder()
+            .setAuthor(
+                {
+                    "name": `Eval by ${message.author.tag}`,
+                    "icon_url": `https://cdn.discordapp.com/emojis/314405560701419520.png`
+                }
+            )
+            .setDescription(`:inbox_tray: **Input:**\n\n\`\`\`js\n${cont}\`\`\``, true)
+            .addFields(
+                {
+                    name: `\u200b`,
+                    value: `:outbox_tray: **Output:**\`\`\`\n${randomResponse}\`\`\``,
+                    inline: true,
+                }
+            )
+            .setColor(0xff0000)
+            .setFooter({ text: `${Date.now() - message.createdTimestamp}ms`});
+        await msg.edit({
+            embeds: [errorcodefake]
+        });
     }
 };
