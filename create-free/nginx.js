@@ -9,8 +9,8 @@ function createServer(ServerName, UserID){
     return {
         name: ServerName,
         user: UserID,
-        nest: 14,
-        egg: 48,
+        nest: 5,
+        egg: 23,
         docker_image: "danbothosting/nginx",
         startup: `{{STARTUP_CMD}}`,
         limits: {
