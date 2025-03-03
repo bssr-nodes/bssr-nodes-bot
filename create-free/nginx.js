@@ -10,7 +10,7 @@ function createServer(ServerName, UserID){
         name: ServerName,
         user: UserID,
         nest: 5,
-        egg: 23,
+        egg: 24,
         docker_image: "danbothosting/nginx",
         startup: `{{STARTUP_CMD}}`,
         limits: {
