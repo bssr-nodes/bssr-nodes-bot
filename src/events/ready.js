@@ -3,7 +3,7 @@ const Chalk = require("chalk");
 const { exec } = require("child_process");
 const Util = require('util');
 const execPromise = Util.promisify(exec);
-
+const axios = require('axios');
 
 const ServerStatus = require("../serverStatus.js");
 const Config = require('../../config.json');
@@ -19,15 +19,12 @@ module.exports = async (client) => {
         Chalk.magenta("[DISCORD] ") + Chalk.green(client.user.username + " has logged in!"),
     );
 
-    // Cloes all accounts channels that are older than 30 minutes.
     guild.channels.cache
     .filter((x) => x.parentId === MiscConfigs.accounts && Date.now() - x.createdAt.getTime() > 30 * 60 * 1000)
     .forEach((x) => x.delete());
 
-    //Initializing the cooldown.
     client.cooldown = {};
 
-    //Automatic GitHub Update (30 seconds intervals).
     setInterval(async () => {
         try {
             const { stdout } = await execPromise('git pull');
@@ -43,9 +40,10 @@ module.exports = async (client) => {
                 }, 5000);
             }
         } catch (Error) {
+            console.error("Error during Git pull:", Error);
         }
     }, 30 * 1000);
-    
+
     setInterval(() => {
         client.user.setPresence({
             activities: [{ name: 'over BSSR Nodes', type: Discord.ActivityType.Watching }],
@@ -54,21 +52,14 @@ module.exports = async (client) => {
     }, 1000 * 60);
 
     if (true) {
-
         console.log(Chalk.magenta("[NODE CHECKER] ") + Chalk.greenBright("Enabled"));
+        await ServerStatus.startNodeChecker();
 
-        await ServerStatus.startNodeChecker(); //Start the Node Checker.
-
-        // Node Status Embed.
         const channel = client.channels.cache.get(MiscConfigs.nodestatus);
-
         setInterval(async () => {
             const embed = await ServerStatus.getEmbed();
 
-            let messages = await channel.messages.fetch({
-                limit: 10,
-            });
-
+            let messages = await channel.messages.fetch({ limit: 10 });
             messages = messages.filter((x) => x.author.id === client.user.id).last();
 
             if (messages == null) channel.send({embeds: [embed]});
@@ -77,4 +68,5 @@ module.exports = async (client) => {
     } else {
         console.log(Chalk.magenta("[NODE CHECKER] ") + Chalk.redBright("Disabled"));
     }
+
 };

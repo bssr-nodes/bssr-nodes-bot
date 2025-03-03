@@ -14,11 +14,11 @@ function createServer(ServerName, UserID){
         docker_image: "danbothosting/aio",
         startup: "${STARTUP_CMD}",
         limits: {
-            memory: 128,
+            memory: 512,
             swap: -1,
-            disk: 256,
+            disk: 512,
             io: 500,
-            cpu: 20,
+            cpu: 50,
         },
         environment: {
             STARTUP_CMD: "bash",

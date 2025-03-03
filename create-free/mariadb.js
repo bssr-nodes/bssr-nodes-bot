@@ -14,11 +14,11 @@ function createServer(ServerName, UserID){
         docker_image: "ghcr.io/parkervcp/yolks:mariadb_10.3",
         startup: `{ /usr/sbin/mysqld & } && sleep 5 && mysql -u root`,
         limits: {
-            memory: 128,
+            memory: 512,
             swap: -1,
-            disk: 256,
+            disk: 512,
             io: 500,
-            cpu: 20,
+            cpu: 50,
         },
         environment: {},
         feature_limits: {
