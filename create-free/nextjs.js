@@ -16,7 +16,7 @@ function createServer(ServerName, UserID){
         limits: {
             memory: 512,
             swap: -1,
-            disk: 512,
+            disk: 1024,
             io: 500,
             cpu: 50,
         },
