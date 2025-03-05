@@ -5,7 +5,7 @@ This bot manages user creation, server creation and general management of Pterod
 ## Maintainers
 
 -   **Blxddy**
-    -   GitHub: [ninsaccplayzyt](https://github.com/ninsaccplayzyt)
+    -   GitHub: [ninsaccplayzyt](https://github.com/blxddy)
 -   **Sky**
     -   GitHub: [Skyy-Development](https://github.com/Skyy-Development)
 -   **Cyteon**
