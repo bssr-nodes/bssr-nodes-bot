@@ -14,19 +14,19 @@ function createServer(ServerName, UserID){
         docker_image: "danbothosting/nginx",
         startup: `{{STARTUP_CMD}}`,
         limits: {
-            memory: 0,
+            memory: 512,
             swap: -1,
-            disk: 10240,
+            disk: 512,
             io: 500,
-            cpu: 0,
+            cpu: 50,
         },
         environment: {
             STARTUP_CMD: "./start.sh",
         },
         feature_limits: {
-            databases: 2,
+            databases: 0,
             allocations: 1,
-            backups: 10,
+            backups: 0,
         },
         deploy: {
             locations: botswebdbFREE,
