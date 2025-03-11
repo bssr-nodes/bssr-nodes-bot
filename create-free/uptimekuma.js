@@ -11,7 +11,7 @@ function createServer(ServerName, UserID){
         user: UserID,
         nest: 5,
         egg: 26,
-        docker_image: "parkervcp/apps:uptimekuma",
+        docker_image: "ghcr.io/parkervcp/apps:uptimekuma",
         startup: "if [[ -d .git ]] && [[ {{AUTO_UPDATE}} == \"1\" ]]; then npm run setup; fi; \/usr\/local\/bin\/node \/home\/container\/server\/server.js --port={{SERVER_PORT}}",
         limits: {
             memory: 512,
