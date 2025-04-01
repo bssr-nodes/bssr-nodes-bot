@@ -1,7 +1,7 @@
 module.exports = {
     isGameServer: false,
     isDisabled: false,
-    subCategory: "Languages",
+    subCategory: "Web Hosting",
     createServer: createServer
 }
 
