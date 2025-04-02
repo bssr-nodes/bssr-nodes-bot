@@ -21,4 +21,4 @@ package-lock.json
 .bashrc
 inxi
 start.sh
-src/events/transfer.js
+src/events/serverKilled.js
