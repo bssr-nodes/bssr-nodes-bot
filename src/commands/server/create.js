@@ -42,7 +42,7 @@ exports.run = async (client, message, args) => {
     }
 
     const userServers = await getUserServers(userAccount.consoleID).catch(() => null);
-    
+
     if (!userServers) {
         return message.reply("Failed to fetch your server data. Please try again later.");
     }
@@ -52,7 +52,7 @@ exports.run = async (client, message, args) => {
 
     if (serverCount >= serverLimit) {
         return message.reply(
-            `You have reached your server limit of ${serverLimit}. Delete a server to make a new one. If you wish to have this limit extended, contact a staff member via a ticket.`
+            `You have created ${serverCount} servers out of ${serverLimit}. Delete a server to make a new one. If you wish to have this limit extended, contact a staff member via a ticket.`
         );
     }
 
