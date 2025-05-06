@@ -30,13 +30,19 @@ exports.run = async (client, message, args) => {
         const userServers = response.attributes.relationships.servers.data; // The user server data from the panel.
         const serversUsed = userServers.length;
         const serverLimit = parseInt(userAccount.serverLimit, 10) || 3;
-        const remainingSlots = Math.max(serverLimit - serversUsed, 0);
+
+        let remainingSlotsText;
+        if (isNaN(serverLimit) || serverLimit > Number.MAX_SAFE_INTEGER) {
+            remainingSlotsText = "lower yo fuckin server count this shit too high for me to process :sob:";
+        } else {
+            const remainingSlots = Math.max(serverLimit - serversUsed, 0);
+            remainingSlotsText = `Remaining slots: ${remainingSlots.toLocaleString()}`;
+        }
 
         const serverCountEmbed = new Discord.EmbedBuilder()
             .setTitle(`Server Count:`)
             .setDescription(`
-                Servers used: ${serversUsed} out of ${serverLimit.toLocaleString()}.\n
-                Remaining slots: ${remainingSlots}.
+                Servers used: ${serversUsed} out of ${serverLimit.toLocaleString()}.\n${remainingSlotsText}
             `)
             .setColor("Blurple")
             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL() })
