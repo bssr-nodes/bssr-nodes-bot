@@ -14,7 +14,7 @@ exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.Admin.includes(role.id))) return;
 
     if (args.length < 3) {
-        return message.reply("Usage: `!setlimit <user_id> <new_limit>`");
+        return message.reply("Usage: `!staff setlimit <user_id> <new_limit>`");
     }
 
     const userId = args[1];
