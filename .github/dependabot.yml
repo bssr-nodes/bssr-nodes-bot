@@ -17,5 +17,5 @@ updates:
       - "dependencies"
       - "automated-update"
 
-    assignees:
-      - "ninsaccplayzyt"
+    reviewers:
+      - "blxddy"
