@@ -26,14 +26,13 @@ exports.run = async (client, message, args) => {
     await getUserServers(userAccount.consoleID).then(async (Response) => {
             const userServers = Response.attributes.relationships.servers.data; //The user server data from the panel.
             const serversUsed = userServers.length;
-            const serverLimit = userAccount.serverLimit;
+            const serverLimit = ParseInt(userAccount.serverLimit, 10) || 3;
             const remainingSlots = Math.max(serversUsed - serverLimit, 0);
 
             const serverCountEmbed = new Discord.EmbedBuilder()
                 .setTitle(`Server Count:`)
                 .setDescription(`
-            Servers used: ${serversUsed} out of ${serverLimit}.\n
-            Remaining slots: ${remainingSlots}.
+            Servers used: ${serversUsed} out of ${serverLimit}.\nRemaining slots: ${remainingSlots}.
                     `)
                 .setColor("Blurple")
                 .setFooter({text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL()})
