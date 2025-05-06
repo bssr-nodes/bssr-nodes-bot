@@ -26,13 +26,11 @@ exports.run = async (client, message, args) => {
     await getUserServers(userAccount.consoleID).then(async (Response) => {
             const userServers = Response.attributes.relationships.servers.data; //The user server data from the panel.
 
-            const premiumServers = userServers.filter((Server) => Config.DonatorNodes.includes(Server.attributes.node)).length; //The amount of premium servers the user has.
-
             const serverCountEmbed = new Discord.EmbedBuilder()
                 .setTitle(`Server Count:`)
                 .setDescription(`
-                    :free: Free Server(s): ${userServers.length - premiumServers}\n:money_with_wings: Premium Server(s): ${premiumServers}
-                `)
+                    Server count: ${userServers.length} out of ${userAccount.serverLimit} servers used.\nRemaining slots: ${userServers.length - userAccount.serverLimit}
+                    `)
                 .setColor("Blurple")
                 .setFooter({text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL()})
                 .setTimestamp();
