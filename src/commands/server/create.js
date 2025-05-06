@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const Config = require('../../../config.json');
 const Creation = require("../../../createData.js");
 const MiscConfigs = require('../../../config/misc-configs.js');
+const getUserServers = require('../../util/getUserServers.js');
 
 exports.description = "Create a free server. View this command for usage.";
 
@@ -19,8 +20,7 @@ exports.run = async (client, message, args) => {
 /*
     if (!staff) {
         return message.reply(
-            "Server creation is currently disabled due to a bug of servers being created on the private node. " +
-            "We apologize for any inconvenience."
+            "Server creation is currently disabled due to a bug of servers being created on the private node."
         );
     }
     */
@@ -38,6 +38,21 @@ exports.run = async (client, message, args) => {
                 "user new` to create an account\nIf you already have an account link it using `" +
                 Config.DiscordBot.Prefix +
                 "user link`",
+        );
+    }
+
+    const userServers = await getUserServers(userAccount.consoleID).catch(() => null);
+    
+    if (!userServers) {
+        return message.reply("Failed to fetch your server data. Please try again later.");
+    }
+
+    const serverCount = userServers.attributes.relationships.servers.data.length;
+    const serverLimit = userAccount.serverLimit || 3; // handle server limit if user does not have it set
+
+    if (serverCount >= serverLimit) {
+        return message.reply(
+            `You have reached your server limit of ${serverLimit}. Delete a server to make a new one. If you wish to have this limit extended, contact a staff member via a ticket.`
         );
     }
 
