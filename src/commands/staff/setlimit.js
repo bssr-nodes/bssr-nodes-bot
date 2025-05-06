@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const Config = require('../../../config.json');
 
 exports.description = "Adjust the server limit for a user.";
 
