@@ -33,16 +33,20 @@ exports.run = async (client, message, args) => {
 
         let remainingSlotsText;
         if (isNaN(serverLimit) || serverLimit > Number.MAX_SAFE_INTEGER) {
-            remainingSlotsText = "lower yo fuckin server count this shit too high for me to process :sob:";
+            remainingSlotsText = "lower yo fuckin server count this shit too big for me to handle :sob:";
         } else {
             const remainingSlots = Math.max(serverLimit - serversUsed, 0);
             remainingSlotsText = `Remaining slots: ${remainingSlots.toLocaleString()}`;
         }
 
+        const serverLimitText = serverLimit > Number.MAX_SAFE_INTEGER
+            ? "Too large to display"
+            : serverLimit.toLocaleString();
+
         const serverCountEmbed = new Discord.EmbedBuilder()
             .setTitle(`Server Count:`)
             .setDescription(`
-                Servers used: ${serversUsed} out of ${serverLimit.toLocaleString()}.\n${remainingSlotsText}
+                Servers used: ${serversUsed} out of ${serverLimitText}.\n${remainingSlotsText}
             `)
             .setColor("Blurple")
             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL() })
