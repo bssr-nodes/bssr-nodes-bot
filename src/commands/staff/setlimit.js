@@ -24,11 +24,10 @@ exports.run = async (client, message, args) => {
         return message.reply("Please provide a valid number greater than 0 for the new limit.");
     }
 
-    const userLimitData = await userServerLimits.get(userId) || { count: 0, limit: 3 };
-    await userServerLimits.set(userId, {
-        count: userLimitData.count,
-        limit: newLimit,
-    });
+    const userDataEntry = await userData.get(userId) || { serverLimit: 3 };
+
+    userDataEntry.serverLimit = newLimit;
+    await userData.set(userId, userDataEntry);
 
     return message.reply(`Successfully set the server limit for user <@${userId}> to ${newLimit}.`);
 };
