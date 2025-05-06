@@ -32,7 +32,7 @@ exports.run = async (client, message, args) => {
             const serverCountEmbed = new Discord.EmbedBuilder()
                 .setTitle(`Server Count:`)
                 .setDescription(`
-            Servers used: ${serversUsed} out of ${serverLimit}.\nRemaining slots: ${remainingSlots}.
+            Servers used: ${serversUsed} out of ${serverLimit.toLocaleString()}.\nRemaining slots: ${remainingSlots}.
                     `)
                 .setColor("Blurple")
                 .setFooter({text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL()})
