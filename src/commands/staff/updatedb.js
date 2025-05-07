@@ -14,14 +14,14 @@ exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.BotAdmin.includes(role.id))) return;
 
     const allUsers = await userData.all(); 
-    
+
     for (const user of allUsers) {
         const userId = user.id;
         const userDataEntry = user.value;
 
         if (!userDataEntry.serverLimit) {
             userDataEntry.serverLimit = 5;
-            await userData.set(userId, userDataEntry);
+            await userData.update(userId, userDataEntry);
         }
     }
 
