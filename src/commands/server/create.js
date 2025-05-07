@@ -48,7 +48,7 @@ exports.run = async (client, message, args) => {
     }
 
     const serverCount = userServers.attributes.relationships.servers.data.length;
-    const serverLimit = userAccount.serverLimit || 3; // handle server limit if user does not have it set
+    const serverLimit = userAccount.serverLimit || 5; // handle server limit if user does not have it set
 
     if (serverCount >= serverLimit) {
         return message.reply(

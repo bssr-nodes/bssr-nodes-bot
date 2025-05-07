@@ -13,7 +13,7 @@ exports.description = "Adjust the server limit for a user.";
 exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.Admin.includes(role.id))) return;
 
-    if (args.length < 3) {
+    if (args.length < 5) {
         return message.reply("Usage: `!staff setlimit <user_id> <new_limit>`");
     }
 
@@ -24,7 +24,7 @@ exports.run = async (client, message, args) => {
         return message.reply("Please provide a valid number greater than 0 for the new limit.");
     }
 
-    const userDataEntry = await userData.get(userId) || { serverLimit: 3 };
+    const userDataEntry = await userData.get(userId) || { serverLimit: 5 };
 
     userDataEntry.serverLimit = newLimit;
     await userData.set(userId, userDataEntry);

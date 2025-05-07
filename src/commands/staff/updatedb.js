@@ -13,14 +13,14 @@ exports.description = "Update all existing users to include a server limit.";
 exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.BotAdmin.includes(role.id))) return;
 
-    const allUsers = await userData.all(); // Fetch all users from the database
-
+    const allUsers = await userData.all(); 
+    
     for (const user of allUsers) {
         const userId = user.id;
         const userDataEntry = user.value;
 
         if (!userDataEntry.serverLimit) {
-            userDataEntry.serverLimit = 3; // Set default server limit
+            userDataEntry.serverLimit = 5;
             await userData.set(userId, userDataEntry);
         }
     }

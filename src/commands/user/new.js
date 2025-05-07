@@ -238,7 +238,7 @@ exports.run = async (client, message, args) => {
                 linkTime: moment().format("HH:mm:ss"),
                 linkDate: moment().format("YYYY-MM-DD"),
                 domains: [],
-                serverLimit: 3,
+                serverLimit: 5,
             });
 
             msg.edit({

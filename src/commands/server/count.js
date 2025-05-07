@@ -29,7 +29,7 @@ exports.run = async (client, message, args) => {
         const response = await getUserServers(userAccount.consoleID);
         const userServers = response.attributes.relationships.servers.data; // The user server data from the panel.
         const serversUsed = userServers.length;
-        const serverLimit = parseInt(userAccount.serverLimit, 10) || 3;
+        const serverLimit = parseInt(userAccount.serverLimit, 10) || 5;
 
         let remainingSlotsText;
         if (isNaN(serverLimit) || serverLimit > Number.MAX_SAFE_INTEGER) {
