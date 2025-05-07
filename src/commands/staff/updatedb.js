@@ -12,6 +12,7 @@ exports.description = "Update all existing users to include a server limit.";
  */
 exports.run = async (client, message, args) => {
     if (!message.member.roles.cache.some(role => Config.DiscordBot.Roles.BotAdmin.includes(role.id))) {
+        return message.reply("You do not have permission to use this command.");
     }
 
     try {
@@ -31,7 +32,7 @@ exports.run = async (client, message, args) => {
 
             if (userDataEntry.serverLimit === 3) {
                 userDataEntry.serverLimit = 5;
-                await userData.update(userId, userDataEntry);
+                await userData.set(userId, userDataEntry);
                 updatedCount++;
                 console.log(`Updated user ${userId} to serverLimit 5.`);
             }
