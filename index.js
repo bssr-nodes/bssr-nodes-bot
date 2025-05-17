@@ -4,6 +4,7 @@
     const Discord = require("discord.js");
     const axios = require("axios");
     const { exec } = require("child_process");
+    const { Collection } = require('discord.js');
 
     const Config = require("./config.json");
 
@@ -52,6 +53,8 @@
             Discord.Partials.Reaction
         ]
     });
+
+    client.commands = new Collection();
 
     //Event Handler.
     fs.readdir("./src/events/", (err, files) => {
