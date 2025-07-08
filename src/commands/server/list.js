@@ -39,7 +39,7 @@ exports.run = async (client, message, args) => {
 
     try {
         const response = await Axios({
-            url: `${Config.Pterodactyl.hosturl}/api/application/servers`,
+            url: `${Config.Pterodactyl.hosturl}/api/application/servers?per_page=99999999`,
             method: "GET",
             maxRedirects: 5,
             headers: {
