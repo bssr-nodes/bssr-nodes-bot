@@ -18,12 +18,7 @@ module.exports = async (client, oldMember, newMember) => {
 
         //Hoisting usernames.
         if (displayName.match(/^[a-z0-9]/i) == null) {
-            await newMember.setNickname("I love Dan <3");
-        };
-
-        //Banned usernames.
-        if (Config.BannedNames.some((r) => displayName.includes(r))) {
-            await newMember.setNickname("Moderated Nickname");
+            await newMember.setNickname("I love blxddy <3");
         };
     }
 };
