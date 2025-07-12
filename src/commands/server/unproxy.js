@@ -91,6 +91,7 @@ exports.description = "Unproxies a domain from a server.";
  * @returns void
  */
 exports.run = async (client, message, args) => {
+    return message.reply("This command has been disabled while the OS is reinstalled. Watch <#1335101576167161856> for updates.");
 
     const UnproxyEmbed = new Discord.EmbedBuilder();
     UnproxyEmbed.setTitle("**Unproxying Domain from BSSR Nodes server:**");
