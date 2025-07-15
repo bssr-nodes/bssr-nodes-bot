@@ -50,7 +50,6 @@ exports.description = "Proxy a domain to a server. View this command for usage."
  * @returns void
  */
 exports.run = async (client, message, args) => {
-    return message.reply("This command has been disabled while the OS is reinstalled. Watch <#1335101576167161856> for updates.");
 
     const ProxyLocations = Proxies.map((Proxy) => `> \`${Proxy.ip}\` - [${Proxy.name}] 🟢 Enabled`).join('\n');
 
