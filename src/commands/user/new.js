@@ -19,6 +19,7 @@ exports.description = "Create a new panel account.";
  * @returns void
  */
 exports.run = async (client, message, args) => {
+    return message.reply("This command has been disabled due to the mailserver being down. If you would like an account, open a ticket using </open:1280829613211127937> and choose other as the reason.");
 
     const userAccount = await userData.get(message.author.id);
     
